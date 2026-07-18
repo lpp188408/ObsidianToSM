@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { publishWechatDraft, replaceDataUrlImages, WechatClient, type WechatRequester } from "../wechat";
+import { publishWechatArticle, publishWechatDraft, replaceDataUrlImages, WechatClient, type WechatRequester } from "../wechat";
 
 describe("replaceDataUrlImages", () => {
   it("uploads only data URL images and replaces their src values", async () => {
@@ -93,5 +93,26 @@ describe("publishWechatDraft", () => {
       content: '<p><img src="https://mmbiz.qpic.cn/inline.png" /></p>',
       thumb_media_id: "cover-media-id"
     });
+  });
+});
+
+describe("publishWechatArticle", () => {
+  it("创建草稿后提交发布并返回已发布状态", async () => {
+    const requester: WechatRequester = vi.fn()
+      .mockResolvedValueOnce({ json: { access_token: "token" } })
+      .mockResolvedValueOnce({ json: { media_id: "cover-media-id" } })
+      .mockResolvedValueOnce({ json: { media_id: "draft-media-id" } })
+      .mockResolvedValueOnce({ json: { publish_id: "publish-id" } })
+      .mockResolvedValueOnce({ json: { publish_status: 0 } });
+
+    const result = await publishWechatArticle({
+      appId: "app-id", appSecret: "app-secret", requester, html: "<p>正文</p>", thumbMediaId: "",
+      metadata: { title: "标题", author: "作者", digest: "", cover: "cover.png", needOpenComment: true, onlyFansCanComment: false },
+      cover: { bytes: new TextEncoder().encode("cover").buffer, filename: "cover.png", mimeType: "image/png" }
+    });
+
+    expect(result).toEqual({ draftMediaId: "draft-media-id", publishId: "publish-id", status: "published" });
+    expect((requester as ReturnType<typeof vi.fn>).mock.calls[3][0].url).toContain("freepublish/submit");
+    expect((requester as ReturnType<typeof vi.fn>).mock.calls[4][0].url).toContain("freepublish/get");
   });
 });

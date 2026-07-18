@@ -19,3 +19,11 @@
   overflow: auto;
   padding: 16px;
 }
+
+.obsidian-to-sm-workbench { display: flex; flex-direction: column; height: 100%; }
+.obsidian-to-sm-controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 12px; border-bottom: 1px solid var(--background-modifier-border); }
+.obsidian-to-sm-cover { grid-row: span 2; min-height: 112px; white-space: pre-line; border: 1px dashed var(--background-modifier-border); background: transparent; }
+.obsidian-to-sm-account { grid-column: span 2; min-width: 0; }
+.obsidian-to-sm-sidebar-preview { flex: 1 1 auto; overflow-y: auto; padding: 14px; }
+.obsidian-to-sm-sidebar-preview .obsidian-to-sm { max-width: 680px; margin: 0 auto; }
+.obsidian-to-sm-help { padding: 8px 12px; color: var(--text-muted); border-bottom: 1px solid var(--background-modifier-border); }
