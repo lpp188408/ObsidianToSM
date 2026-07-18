@@ -1,10 +1,13 @@
 import { Notice, Plugin, requestUrl } from "obsidian";
 import { resolveEmbeds } from "./assets";
+import { copyHtmlToClipboard } from "./clipboard";
 import { extractWechatMetadata } from "./metadata";
 import { PreviewModal, type DraftConfig } from "./preview-modal";
 import { renderMarkdownToWechatHtml } from "./renderer";
 import { DEFAULT_SETTINGS, PluginSettings, SettingsTab } from "./settings";
-import { publishWechatDraft, type WechatUploadFile } from "./wechat";
+import { publishWechatArticle, publishWechatDraft, type WechatUploadFile } from "./wechat";
+import { SidebarController } from "./sidebar-controller";
+import { VIEW_TYPE_WECHAT_WORKBENCH, WechatWorkbenchView } from "./sidebar-view";
 
 export default class ObsidianToSmPlugin extends Plugin {
   declare settings: PluginSettings;
@@ -12,10 +15,15 @@ export default class ObsidianToSmPlugin extends Plugin {
   async onload(): Promise<void> {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
     this.addSettingTab(new SettingsTab(this.app, this));
+    this.registerView(VIEW_TYPE_WECHAT_WORKBENCH, (leaf) => new WechatWorkbenchView(leaf, this.createSidebarController(), {
+      accounts: () => [], selectedAccountId: () => "", setSelectedAccount: async () => undefined,
+      addCover: async () => { throw new Error("封面选择将在下一次更新中接入"); },
+      copy: async () => { const note = await this.prepareActiveNote(); if (note) await copyHtmlToClipboard(note.html, note.plainText); },
+      createDraft: async () => this.publishActiveNote(), publish: async () => this.publishArticle()
+    }));
 
-    this.addRibbonIcon("send", "复制到公众号", () => {
-      void this.openPreviewForActiveNote();
-    });
+    this.addRibbonIcon("send", "打开公众号发布工作台", () => { void this.activateWorkbench(); });
+    this.addCommand({ id: "open-wechat-publishing-workbench", name: "打开公众号发布工作台", callback: () => { void this.activateWorkbench(); } });
 
     this.addCommand({
       id: "copy-active-note-to-wechat",
@@ -61,7 +69,36 @@ export default class ObsidianToSmPlugin extends Plugin {
     }
   }
 
-  private async prepareActiveNote(): Promise<{ html: string; plainText: string; draftConfig: DraftConfig } | null> {
+  private async publishArticle(): Promise<void> {
+    try {
+      const note = await this.prepareActiveNote();
+      if (!note) return;
+      const result = await publishWechatArticle({ ...note.draftConfig, html: note.html });
+      new Notice(`发布任务：${result.status}（${result.publishId}）`);
+    } catch (error) { throw new Error(`直接发布失败：${error instanceof Error ? error.message : String(error)}`); }
+  }
+
+  private createSidebarController(): SidebarController {
+    return new SidebarController({
+      load: async (themeId) => {
+        const note = await this.prepareActiveNote(themeId);
+        if (!note) return { html: "", plainText: "" };
+        return { html: note.html, plainText: note.plainText };
+      }
+    });
+  }
+
+  private async activateWorkbench(): Promise<void> {
+    const leaf = this.app.workspace.getLeftLeaf(false);
+    if (!leaf) {
+      new Notice("未找到可用的左侧栏，请先显示左侧边栏后重试");
+      return;
+    }
+    await leaf.setViewState({ type: VIEW_TYPE_WECHAT_WORKBENCH, active: true });
+    this.app.workspace.revealLeaf(leaf);
+  }
+
+  private async prepareActiveNote(themeId = "business-green"): Promise<{ html: string; plainText: string; draftConfig: DraftConfig } | null> {
     const file = this.app.workspace.getActiveFile();
     if (!file) {
       new Notice("没有打开的笔记");
@@ -76,7 +113,8 @@ export default class ObsidianToSmPlugin extends Plugin {
     const withImages = await resolveEmbeds(body, async (path) => (await this.resolveAsset(path, file.path)).dataUrl);
     const html = renderMarkdownToWechatHtml(withImages, {
       customCss: this.settings.customCss,
-      enableLineNumbers: this.settings.enableLineNumbers
+      enableLineNumbers: this.settings.enableLineNumbers,
+      themeId
     });
     const cover = metadata.cover ? (await this.resolveAsset(metadata.cover, file.path)).uploadFile : undefined;
     return {
