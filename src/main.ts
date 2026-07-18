@@ -1,4 +1,4 @@
-import { Notice, Plugin, requestUrl } from "obsidian";
+import { Notice, Plugin, requestUrl, SuggestModal, TFile } from "obsidian";
 import { safeStorage } from "electron";
 import { parseAccountRows } from "./accounts";
 import { CredentialStore } from "./credential-store";
@@ -21,7 +21,7 @@ export default class ObsidianToSmPlugin extends Plugin {
     this.registerView(VIEW_TYPE_WECHAT_WORKBENCH, (leaf) => new WechatWorkbenchView(leaf, this.createSidebarController(), {
       accounts: () => this.settings.accounts, selectedAccountId: () => this.settings.selectedAccountId,
       setSelectedAccount: async (id) => { this.settings.selectedAccountId = id; await this.saveSettings(); },
-      addCover: async () => { throw new Error("封面选择将在下一次更新中接入"); },
+      addCover: async () => this.chooseCover(),
       copy: async () => { const note = await this.prepareActiveNote(); if (note) await copyHtmlToClipboard(note.html, note.plainText); },
       createDraft: async () => this.publishActiveNote(), publish: async () => this.publishArticle()
     }));
@@ -123,6 +123,25 @@ export default class ObsidianToSmPlugin extends Plugin {
     this.app.workspace.revealLeaf(leaf);
   }
 
+  private async chooseCover(): Promise<void> {
+    const note = this.app.workspace.getActiveFile();
+    if (!note) throw new Error("没有打开的笔记");
+    new CoverSuggestModal(this.app, async (cover) => {
+      const content = await this.app.vault.read(note);
+      const line = `封面: "![[${cover.name}]]"`;
+      const updated = content.match(/^---\s*\n[\s\S]*?\n---/)
+        ? content.replace(/^(---\s*\n[\s\S]*?)(\n---)/, (frontmatter, start, end) => {
+            const next = /\n(?:封面|cover):.*(?:\n|$)/.test(frontmatter)
+              ? frontmatter.replace(/\n(?:封面|cover):.*(?=\n|$)/, `\n${line}`)
+              : `${frontmatter}\n${line}`;
+            return `${next}${end}`;
+          })
+        : `---\n${line}\n---\n\n${content}`;
+      await this.app.vault.modify(note, updated);
+      new Notice(`已设置封面：${cover.name}`);
+    }).open();
+  }
+
   private async prepareActiveNote(themeId = "business-green"): Promise<{ html: string; plainText: string; draftConfig: DraftConfig } | null> {
     const file = this.app.workspace.getActiveFile();
     if (!file) {
@@ -187,6 +206,16 @@ export default class ObsidianToSmPlugin extends Plugin {
       uploadFile: { bytes, filename: file.name, mimeType }
     };
   }
+}
+
+class CoverSuggestModal extends SuggestModal<TFile> {
+  constructor(app: ObsidianToSmPlugin["app"], private readonly onSelect: (file: TFile) => Promise<void>) { super(app); }
+  getSuggestions(query: string): TFile[] {
+    const accepted = new Set(["png", "jpg", "jpeg", "gif", "webp"]);
+    return this.app.vault.getFiles().filter((file) => accepted.has(file.extension.toLowerCase()) && file.path.toLowerCase().includes(query.toLowerCase()));
+  }
+  renderSuggestion(file: TFile, el: HTMLElement): void { el.setText(file.path); }
+  onChooseSuggestion(file: TFile): void { void this.onSelect(file); }
 }
 
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
