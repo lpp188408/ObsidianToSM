@@ -122,7 +122,7 @@ git commit -m "feat: 侧栏状态支持封面缩略图"
 it("没有封面字段时返回空封面", () => {
   const result = extractWechatMetadata("# 标题", { author: "作者", title: "标题" });
 
-  expect(result.metadata.cover).toBeUndefined();
+  expect(result.metadata.cover).toBe("");
 });
 ```
 
