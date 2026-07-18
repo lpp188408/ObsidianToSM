@@ -1,89 +1,59 @@
-# ObsidianToSM Sidebar Publishing Workbench Design
+# ObsidianToSM 左侧发布工作台设计
 
-## Goal
+## 目标
 
-The plugin is named **ObsidianToSM**. Replace the current modal-based publishing flow with a left-sidebar Obsidian workbench. It must render the active note as a complete scrollable WeChat article preview, allow selecting a theme and an Official Account, and publish through the Official Account APIs without manually copying content.
+将现有弹窗流程改为左侧可停靠工作台。工作台完整预览当前笔记，支持选择公众号账号和排版主题，并能通过微信公众号 API 保存草稿或提交发布，无需手工复制。
 
-## Scope
+## 范围与边界
 
-- A dockable left sidebar view opened from the ribbon and command palette.
-- Complete scrollable article preview in the sidebar, refreshed from the active Markdown note.
-- Six built-in themes: `minimal-mono`, `tech-blue`, `business-green`, `ink`, `editorial-red`, and `warm-orange`.
-- Multiple Official Account configurations in the plugin settings.
-- AppSecret storage in the macOS system Keychain. Plugin data contains account name, AppID, and a Keychain service/account reference only.
-- Account connection test using the `access_token` API.
-- Local cover selection and persistence to the active note's frontmatter.
-- Create-draft action and direct-publish action.
+- 插件显示名称为 `ObsidianToSM`，稳定插件标识和目录仍为 `obsidian-to-sm`。
+- 左侧栏固定操作区下方为完整、可滚动的文章预览。
+- 内置主题：简约黑白、科技蓝、商务绿、人文墨、杂志红、暖橙生活。
+- 后台可配置多个公众号；每个账号的 AppSecret 使用 macOS 系统钥匙串加密保存，插件配置文件不得保存明文 Secret。
+- `发文章`：上传正文图和封面后保存至草稿箱。
+- `发帖图`：创建草稿后调用发布 API，并轮询发布状态。
+- 直接发布不等于向所有粉丝群发；群发功能不在本期范围。
+- 账号 API 权限和本机公网 IP 白名单是实际发布的外部前提。
 
-## Explicit Boundaries
+## 账号设置
 
-- `发文章` creates a WeChat draft. It uploads inline images and the selected cover before calling the draft API.
-- `发帖图` creates the draft and submits it to WeChat's publish API. The API submission produces a publish task; the UI polls and reports published, reviewing, failed, or rejected state.
-- Neither action sends a broadcast message to all followers. Mass messaging is outside this plugin's scope.
-- The plugin is desktop-only and requires macOS Keychain support for saving AppSecret. It must not silently fall back to plaintext secrets.
-- Real publishing remains dependent on the account API permissions and the current machine's IP whitelist.
-
-## Settings
-
-The settings page exposes a multiline account input and three buttons.
-
-Input format, one account per line:
+设置页使用多行输入框，每行一个账号：
 
 ```text
 公众号名称|AppID|AppSecret
-技术笔记|wx123...|secret-value
-读书会|wx456...|secret-value
+技术笔记|wx123...|secret-a
+读书会|wx456...|secret-b
 ```
 
-- `保存公众号信息`: validates every line, writes each AppSecret to Keychain, and stores non-secret account metadata in plugin data.
-- `测试公众号`: obtains an access token for each configured account and reports per-account success or the WeChat error.
-- Existing author, line-number, custom CSS, and fallback `thumb_media_id` settings remain available.
+- 保存：校验格式和重复 AppID，将 AppSecret 加密后保存到钥匙串，只在插件数据中保存名称、AppID 和密文引用。
+- 测试公众号：逐个调用 `access_token` 接口，显示成功或微信返回的错误。
+- 无法使用钥匙串时明确报错，绝不降级为明文存储。
 
-## Sidebar Layout
+## 侧栏布局与操作
 
-The view has a fixed control area and a scrollable preview below it.
+- `添加封面`：从 Vault 选择图片，写入当前笔记的 `封面: "![[文件名]]"` frontmatter。
+- 账号下拉：选择本次 API 调用使用的公众号。
+- `去公众号后台`：打开 `https://mp.weixin.qq.com/`。
+- `刷新`：读取当前笔记、解析 frontmatter、解析本地图片并重新渲染。
+- `发文章`：创建草稿。
+- `发帖图`：创建草稿、提交发布任务、显示已发布/审核中/失败/被拒绝状态。
+- `复制`：复制富文本 HTML。
+- `主题`：选择主题并立即刷新预览；笔记可通过 `公众号主题: tech-blue` 固定主题。
+- `帮助`：在侧栏内展开账号、白名单、封面和权限检查说明。
 
-- Cover tile: `添加封面`; opens an Obsidian file chooser, then writes `封面: "![[filename.png]]"` to the active note frontmatter.
-- Account selector: selects the account used for API operations.
-- `去公众号后台`: opens `https://mp.weixin.qq.com/` in the external browser.
-- `刷新`: reloads the active note, resolves embeds, parses frontmatter, and re-renders the preview.
-- `发文章`: sends the current rendered article to the selected account's draft box.
-- `发帖图`: sends the article as a draft, submits the draft to the publish API, and polls the task status.
-- `复制`: copies the rendered rich HTML to the system clipboard.
-- `主题`: dropdown for the six built-in themes; changing it re-renders the preview immediately.
-- `帮助`: opens a compact help panel listing credentials, IP whitelist, cover, and API-permission requirements.
+## 数据流
 
-The article preview uses the selected theme and is constrained to a readable mobile-like article width while remaining vertically scrollable within the sidebar.
+1. 读取当前 Markdown 和 frontmatter。
+2. 将 Obsidian 图片嵌入解析为预览用 data URL。
+3. 使用主题渲染微信公众号兼容 HTML。
+4. 发布前上传正文 data URL 图片，并替换为微信 CDN 地址。
+5. 上传本地封面为永久素材；没有本地封面时使用设置中的 `thumb_media_id`。
+6. 调用草稿接口；直接发布额外调用发布提交和状态查询接口。
 
-## Data Flow
+## 验收
 
-1. The view reads the active note and its frontmatter.
-2. It resolves Obsidian image embeds to local data URLs for preview.
-3. The renderer applies the selected theme and produces WeChat-compatible HTML.
-4. On publish, inline data URLs are uploaded through WeChat's content-image endpoint and replaced with returned URLs.
-5. The local cover is uploaded as a permanent image material, or the configured fallback `thumb_media_id` is used.
-6. The plugin calls the draft endpoint. The direct-publish action then submits the draft media ID and polls the returned publish task.
-
-## Error Handling
-
-- Account configuration errors identify the offending line without retaining the secret in a notice or log.
-- Keychain unavailable: saving accounts fails with an explicit message; plaintext storage is never used.
-- Publish errors display the WeChat message and code when available.
-- A view-level busy state disables publish actions while an upload or publish task is running.
-- The sidebar preview remains available when account configuration is incomplete, so copy mode continues to work.
-
-## Tests
-
-- Theme renderer tests verify distinct inline styles for every built-in theme.
-- Account-parser tests cover valid rows, invalid rows, duplicate names, and trimming.
-- Credential-store tests use an injected Keychain adapter and verify that plugin data contains no AppSecret.
-- WeChat client tests cover draft creation, final publish submission, and terminal publish-status mappings.
-- Sidebar controller tests cover active-note refresh, theme switching, and disabled actions while publishing.
-
-## Acceptance Criteria
-
-- The workbench appears as a left sidebar rather than a modal.
-- Users can add and test more than one Official Account configuration without secrets being stored in plain plugin data.
-- The current note can be saved as a draft or submitted for publication without using clipboard copy.
-- The sidebar displays a complete, scrollable, themed preview of the active note.
-- The plugin builds and all automated tests pass.
+- 工作台以左侧栏形式出现，不使用主流程弹窗。
+- 可保存、测试和切换多个公众号账号，配置文件不含明文 AppSecret。
+- 当前笔记可不经剪贴板保存草稿或提交发布。
+- 侧栏展示完整可滚动的主题预览。
+- 自动化测试、TypeScript 编译和构建全部通过。
