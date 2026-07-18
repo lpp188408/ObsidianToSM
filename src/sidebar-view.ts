@@ -1,4 +1,4 @@
-import { ItemView, Notice, WorkspaceLeaf } from "obsidian";
+import { ItemView, Notice, setIcon, WorkspaceLeaf } from "obsidian";
 import { THEMES } from "./themes";
 import { SidebarController } from "./sidebar-controller";
 import type { WechatAccount } from "./accounts";
@@ -43,32 +43,64 @@ export class WechatWorkbenchView extends ItemView {
     const state = this.controller.getState();
     this.contentEl.empty();
     const root = this.contentEl.createDiv({ cls: "obsidian-to-sm-workbench" });
-    const controls = root.createDiv({ cls: "obsidian-to-sm-controls" });
-    const cover = controls.createEl("button", { cls: "obsidian-to-sm-cover", text: "＋\n添加封面" });
+    const activeTheme = THEMES.find((item) => item.id === state.themeId) ?? THEMES[0];
+    root.style.setProperty("--obsidian-to-sm-publish-accent", activeTheme.accent);
+
+    const header = root.createDiv({ cls: "obsidian-to-sm-workbench-header" });
+    header.createSpan({ cls: "obsidian-to-sm-workbench-title", text: "ObsidianToSM" });
+    header.createSpan({ cls: "obsidian-to-sm-workbench-status", text: state.html ? "预览已更新" : "等待笔记" });
+
+    const accountRow = root.createDiv({ cls: "obsidian-to-sm-account-row" });
+    const cover = accountRow.createEl("button", {
+      cls: "obsidian-to-sm-cover clickable-icon",
+      attr: { "aria-label": "添加或更换封面", "data-tooltip-position": "bottom" }
+    });
+    if (state.coverDataUrl) cover.createEl("img", { attr: { src: state.coverDataUrl, alt: "文章封面" } });
+    else setIcon(cover, "image-plus");
     cover.addEventListener("click", () => void this.actions.addCover().then(() => this.refresh()));
-    const account = controls.createEl("select", { cls: "obsidian-to-sm-account" });
-    account.createEl("option", { text: "请选择公众号", value: "" });
+
+    const account = accountRow.createEl("select", { cls: "obsidian-to-sm-account" });
+    account.createEl("option", { text: "未选择公众号（预览可用）", value: "" });
     for (const item of this.actions.accounts()) account.createEl("option", { text: item.name, value: item.id });
     account.value = this.actions.selectedAccountId();
     account.addEventListener("change", () => void this.actions.setSelectedAccount(account.value));
-    this.button(controls, "去公众号后台", () => window.open("https://mp.weixin.qq.com/"));
-    this.button(controls, "刷新", () => void this.refresh());
-    this.button(controls, "发文章", () => void this.run(() => this.actions.createDraft(state.themeId)));
-    this.button(controls, "发帖图", () => void this.run(() => this.actions.publish(state.themeId)));
-    this.button(controls, "复制", () => void this.run(() => this.actions.copy(state.themeId)));
-    const theme = controls.createEl("select", { cls: "obsidian-to-sm-theme" });
-    for (const item of THEMES) theme.createEl("option", { text: item.name, value: item.id });
-    theme.value = state.themeId;
-    theme.addEventListener("change", () => void this.controller.setTheme(theme.value).then(() => this.render()));
-    this.button(controls, "帮助", () => { this.showHelp = !this.showHelp; this.render(); });
-    if (this.showHelp) root.createDiv({ cls: "obsidian-to-sm-help", text: "请先在插件设置中添加并测试公众号；发布需要 API 权限、IP 白名单与封面。" });
+    this.iconButton(accountRow, "external-link", "打开公众号后台", () => window.open("https://mp.weixin.qq.com/"));
+
+    const toolbar = root.createDiv({ cls: "obsidian-to-sm-toolbar" });
+    this.iconButton(toolbar, "refresh-cw", "刷新预览", () => void this.refresh());
+    this.iconButton(toolbar, "copy", "复制公众号富文本", () => void this.run(() => this.actions.copy(state.themeId)));
+    this.iconButton(toolbar, "file-plus-2", "创建公众号草稿", () => void this.run(() => this.actions.createDraft(state.themeId)), "obsidian-to-sm-draft-button");
+    this.iconButton(toolbar, "send", "直接发布文章", () => void this.run(() => this.actions.publish(state.themeId)), "obsidian-to-sm-publish-button");
+
+    const themes = toolbar.createDiv({ cls: "obsidian-to-sm-themes", attr: { "aria-label": "选择文章主题" } });
+    for (const item of THEMES) {
+      const theme = themes.createEl("button", {
+        cls: `obsidian-to-sm-theme-swatch${item.id === state.themeId ? " is-active" : ""}`,
+        attr: { "aria-label": `主题：${item.name}`, "data-tooltip-position": "bottom" }
+      });
+      theme.style.backgroundColor = item.accent;
+      theme.addEventListener("click", () => void this.controller.setTheme(item.id).then(() => this.render()));
+    }
+    this.iconButton(toolbar, "circle-help", "显示发布条件", () => { this.showHelp = !this.showHelp; this.render(); });
+
+    if (this.showHelp) {
+      root.createDiv({
+        cls: "obsidian-to-sm-help",
+        text: "预览不需要账号；创建草稿和直接发布需要在插件设置中配置账号、微信 API 权限、IP 白名单和封面。"
+      });
+    }
+
     const preview = root.createDiv({ cls: "obsidian-to-sm-sidebar-preview" });
     preview.innerHTML = state.html || "<p>打开笔记后点击刷新。</p>";
   }
 
-  private button(parent: HTMLElement, text: string, handler: () => void): void {
-    const button = parent.createEl("button", { text });
+  private iconButton(parent: HTMLElement, icon: string, label: string, handler: () => void, className = ""): HTMLButtonElement {
+    const button = parent.createEl("button", { cls: `obsidian-to-sm-icon-button clickable-icon ${className}`.trim() });
+    button.setAttribute("aria-label", label);
+    button.setAttribute("data-tooltip-position", "bottom");
+    setIcon(button, icon);
     button.addEventListener("click", handler);
+    return button;
   }
 
   private async run(action: () => Promise<void>): Promise<void> {
