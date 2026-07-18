@@ -10,9 +10,9 @@ export interface WorkbenchActions {
   selectedAccountId(): string;
   setSelectedAccount(id: string): Promise<void>;
   addCover(): Promise<void>;
-  copy(): Promise<void>;
-  createDraft(): Promise<void>;
-  publish(): Promise<void>;
+  copy(themeId: string): Promise<void>;
+  createDraft(themeId: string): Promise<void>;
+  publish(themeId: string): Promise<void>;
 }
 
 export class WechatWorkbenchView extends ItemView {
@@ -53,9 +53,9 @@ export class WechatWorkbenchView extends ItemView {
     account.addEventListener("change", () => void this.actions.setSelectedAccount(account.value));
     this.button(controls, "去公众号后台", () => window.open("https://mp.weixin.qq.com/"));
     this.button(controls, "刷新", () => void this.refresh());
-    this.button(controls, "发文章", () => void this.run(() => this.actions.createDraft()));
-    this.button(controls, "发帖图", () => void this.run(() => this.actions.publish()));
-    this.button(controls, "复制", () => void this.run(() => this.actions.copy()));
+    this.button(controls, "发文章", () => void this.run(() => this.actions.createDraft(state.themeId)));
+    this.button(controls, "发帖图", () => void this.run(() => this.actions.publish(state.themeId)));
+    this.button(controls, "复制", () => void this.run(() => this.actions.copy(state.themeId)));
     const theme = controls.createEl("select", { cls: "obsidian-to-sm-theme" });
     for (const item of THEMES) theme.createEl("option", { text: item.name, value: item.id });
     theme.value = state.themeId;

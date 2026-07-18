@@ -22,8 +22,8 @@ export default class ObsidianToSmPlugin extends Plugin {
       accounts: () => this.settings.accounts, selectedAccountId: () => this.settings.selectedAccountId,
       setSelectedAccount: async (id) => { this.settings.selectedAccountId = id; await this.saveSettings(); },
       addCover: async () => this.chooseCover(),
-      copy: async () => { const note = await this.prepareActiveNote(); if (note) await copyHtmlToClipboard(note.html, note.plainText); },
-      createDraft: async () => this.publishActiveNote(), publish: async () => this.publishArticle()
+      copy: async (themeId) => { const note = await this.prepareActiveNote(themeId); if (note) await copyHtmlToClipboard(note.html, note.plainText); },
+      createDraft: async (themeId) => this.publishActiveNote(themeId), publish: async (themeId) => this.publishArticle(themeId)
     }));
 
     this.addRibbonIcon("send", "打开公众号发布工作台", () => { void this.activateWorkbench(); });
@@ -84,9 +84,9 @@ export default class ObsidianToSmPlugin extends Plugin {
     }
   }
 
-  private async publishActiveNote(): Promise<void> {
+  private async publishActiveNote(themeId = "business-green"): Promise<void> {
     try {
-      const note = await this.prepareActiveNote();
+      const note = await this.prepareActiveNote(themeId);
       if (!note) return;
       new Notice("正在上传正文图片并创建草稿…");
       const mediaId = await publishWechatDraft({ ...note.draftConfig, html: note.html });
@@ -97,9 +97,9 @@ export default class ObsidianToSmPlugin extends Plugin {
     }
   }
 
-  private async publishArticle(): Promise<void> {
+  private async publishArticle(themeId = "business-green"): Promise<void> {
     try {
-      const note = await this.prepareActiveNote();
+      const note = await this.prepareActiveNote(themeId);
       if (!note) return;
       const result = await publishWechatArticle({ ...note.draftConfig, html: note.html });
       new Notice(`发布任务：${result.status}（${result.publishId}）`);
