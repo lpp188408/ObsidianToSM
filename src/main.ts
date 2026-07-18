@@ -111,7 +111,7 @@ export default class ObsidianToSmPlugin extends Plugin {
       load: async (themeId) => {
         const note = await this.prepareActiveNote(themeId);
         if (!note) return { html: "", plainText: "" };
-        return { html: note.html, plainText: note.plainText };
+        return { html: note.html, plainText: note.plainText, coverDataUrl: note.coverDataUrl };
       }
     });
   }
@@ -145,7 +145,7 @@ export default class ObsidianToSmPlugin extends Plugin {
     }).open();
   }
 
-  private async prepareActiveNote(themeId = "business-green"): Promise<{ html: string; plainText: string; draftConfig: DraftConfig } | null> {
+  private async prepareActiveNote(themeId = "business-green"): Promise<{ html: string; plainText: string; coverDataUrl?: string; draftConfig: DraftConfig } | null> {
     const file = this.app.workspace.getActiveFile();
     if (!file) {
       new Notice("没有打开的笔记");
@@ -163,11 +163,13 @@ export default class ObsidianToSmPlugin extends Plugin {
       enableLineNumbers: this.settings.enableLineNumbers,
       themeId
     });
-    const cover = metadata.cover ? (await this.resolveAsset(metadata.cover, file.path)).uploadFile : undefined;
+    const coverAsset = metadata.cover ? await this.resolveAsset(metadata.cover, file.path) : undefined;
+    const cover = coverAsset?.uploadFile;
     const account = this.settings.accounts.find((item) => item.id === this.settings.selectedAccountId);
     return {
       html,
       plainText: body,
+      coverDataUrl: coverAsset?.dataUrl,
       draftConfig: {
         appId: account?.appId ?? "",
         appSecret: account ? this.credentialStore().read(account.id) : "",

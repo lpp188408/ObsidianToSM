@@ -24,6 +24,7 @@ describe("extractWechatMetadata", () => {
 
     expect(result.metadata.title).toBe("笔记标题");
     expect(result.metadata.author).toBe("默认作者");
+    expect(result.metadata.cover).toBe("");
     expect(result.metadata.needOpenComment).toBe(true);
     expect(result.metadata.onlyFansCanComment).toBe(false);
   });
