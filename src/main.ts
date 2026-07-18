@@ -117,9 +117,9 @@ export default class ObsidianToSmPlugin extends Plugin {
   }
 
   private async activateWorkbench(): Promise<void> {
-    const leaf = this.app.workspace.getLeftLeaf(false);
+    const leaf = this.app.workspace.getRightLeaf(false);
     if (!leaf) {
-      new Notice("未找到可用的左侧栏，请先显示左侧边栏后重试");
+      new Notice("未找到可用的右侧栏，请先显示右侧边栏后重试");
       return;
     }
     await leaf.setViewState({ type: VIEW_TYPE_WECHAT_WORKBENCH, active: true });
