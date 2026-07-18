@@ -1,0 +1,21 @@
+.obsidian-to-sm-preview {
+  padding: 0;
+}
+
+.obsidian-to-sm-actions {
+  align-items: center;
+  border-bottom: 1px solid var(--background-modifier-border);
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+}
+
+.obsidian-to-sm-actions button {
+  cursor: pointer;
+}
+
+.obsidian-to-sm-preview-body {
+  max-height: 70vh;
+  overflow: auto;
+  padding: 16px;
+}

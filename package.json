@@ -1,0 +1,24 @@
+{
+  "name": "obsidian-to-sm",
+  "version": "0.2.0",
+  "description": "Personal Obsidian plugin for copying notes to WeChat MP editor.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "highlight.js": "^11.11.1",
+    "marked": "^16.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.17",
+    "builtin-modules": "^5.0.0",
+    "esbuild": "^0.25.5",
+    "jsdom": "^26.1.0",
+    "obsidian": "latest",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}
