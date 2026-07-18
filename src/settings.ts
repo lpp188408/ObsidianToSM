@@ -1,12 +1,15 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
+import type { WechatAccount } from "./accounts";
 import type ObsidianToSmPlugin from "./main";
 
 export interface PluginSettings {
   author: string;
   customCss: string;
   enableLineNumbers: boolean;
-  wechatAppId: string;
-  wechatAppSecret: string;
+  accounts: WechatAccount[];
+  selectedAccountId: string;
+  encryptedSecrets: Record<string, string>;
+  themeId: string;
   thumbMediaId: string;
 }
 
@@ -14,8 +17,10 @@ export const DEFAULT_SETTINGS: PluginSettings = {
   author: "",
   customCss: "",
   enableLineNumbers: true,
-  wechatAppId: "",
-  wechatAppSecret: "",
+  accounts: [],
+  selectedAccountId: "",
+  encryptedSecrets: {},
+  themeId: "business-green",
   thumbMediaId: ""
 };
 
@@ -61,30 +66,23 @@ export class SettingsTab extends PluginSettingTab {
         });
       });
 
-    containerEl.createEl("h3", { text: "直发草稿配置" });
-    containerEl.createEl("p", {
-      text: "直发草稿需要公众号 API 权限和 IP 白名单。正文图片与笔记封面会自动上传；没有笔记封面时，可用下方 thumb_media_id 兜底。"
+    containerEl.createEl("h3", { text: "公众号信息" });
+    containerEl.createEl("p", { text: "每行一个公众号：名称|AppID|AppSecret。AppSecret 使用 macOS 系统钥匙串加密保存。" });
+    let rows = this.plugin.exportAccountRows();
+    new Setting(containerEl).setName("公众号账号").addTextArea((text) => {
+      text.inputEl.rows = 6;
+      text.inputEl.cols = 48;
+      text.setValue(rows);
+      text.onChange((value) => { rows = value; });
     });
-
     new Setting(containerEl)
-      .setName("AppID")
-      .addText((text) =>
-        text.setValue(this.plugin.settings.wechatAppId).onChange(async (value) => {
-          this.plugin.settings.wechatAppId = value.trim();
-          await this.plugin.saveSettings();
-        })
-      );
-
-    new Setting(containerEl)
-      .setName("AppSecret")
-      .setDesc("仅保存在本地 Obsidian 插件数据中。")
-      .addText((text) => {
-        text.inputEl.type = "password";
-        text.setValue(this.plugin.settings.wechatAppSecret).onChange(async (value) => {
-          this.plugin.settings.wechatAppSecret = value.trim();
-          await this.plugin.saveSettings();
-        });
-      });
+      .addButton((button) => button.setButtonText("保存公众号信息").setCta().onClick(async () => {
+        await this.plugin.saveAccounts(rows);
+        this.display();
+      }))
+      .addButton((button) => button.setButtonText("测试公众号").onClick(async () => {
+        await this.plugin.testAccounts();
+      }));
 
     new Setting(containerEl)
       .setName("封面 thumb_media_id")
