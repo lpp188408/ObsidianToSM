@@ -37,6 +37,9 @@ export interface WechatDraftPublishInput {
   thumbMediaId: string;
 }
 
+export type WechatPublishStatus = "published" | "reviewing" | "failed" | "rejected";
+export interface WechatPublishResult { draftMediaId: string; publishId: string; status: WechatPublishStatus; }
+
 export class WechatClient {
   private accessToken?: string;
 
@@ -81,6 +84,23 @@ export class WechatClient {
     const mediaId = response.json.media_id;
     if (typeof mediaId !== "string") throwWechatError(response.json, "创建草稿失败");
     return mediaId;
+  }
+
+  async submitPublish(mediaId: string): Promise<string> {
+    const response = await this.postJson("cgi-bin/freepublish/submit", { media_id: mediaId });
+    const publishId = response.json.publish_id;
+    if (typeof publishId !== "string") throwWechatError(response.json, "提交发布失败");
+    return publishId;
+  }
+
+  async getPublishStatus(publishId: string): Promise<WechatPublishStatus> {
+    const response = await this.postJson("cgi-bin/freepublish/get", { publish_id: publishId });
+    return mapPublishStatus(response.json.publish_status, response.json);
+  }
+
+  private async postJson(path: string, body: Record<string, unknown>): Promise<WechatResponse> {
+    const token = await this.getAccessToken();
+    return this.requester({ url: `https://api.weixin.qq.com/${path}?access_token=${encodeURIComponent(token)}`, method: "POST", contentType: "application/json", body: JSON.stringify(body) });
   }
 
   private async getAccessToken(): Promise<string> {
@@ -135,6 +155,19 @@ export async function publishWechatDraft(input: WechatDraftPublishInput): Promis
   }
 
   const client = new WechatClient(input.appId, input.appSecret, input.requester);
+  return createDraft(client, input);
+}
+
+export async function publishWechatArticle(input: WechatDraftPublishInput): Promise<WechatPublishResult> {
+  if (!input.appId || !input.appSecret) throw new Error("请先在插件设置中配置 AppID 和 AppSecret");
+  if (!input.cover && !input.thumbMediaId) throw new Error("请在笔记 frontmatter 设置封面，或在插件设置中填写封面 thumb_media_id");
+  const client = new WechatClient(input.appId, input.appSecret, input.requester);
+  const draftMediaId = await createDraft(client, input);
+  const publishId = await client.submitPublish(draftMediaId);
+  return { draftMediaId, publishId, status: await client.getPublishStatus(publishId) };
+}
+
+async function createDraft(client: WechatClient, input: WechatDraftPublishInput): Promise<string> {
   const content = await replaceDataUrlImages(input.html, (file) => client.uploadArticleImage(file));
   const thumbMediaId = input.cover ? await client.uploadCover(input.cover) : input.thumbMediaId;
   return client.addDraft({
@@ -146,6 +179,14 @@ export async function publishWechatDraft(input: WechatDraftPublishInput): Promis
     needOpenComment: input.metadata.needOpenComment,
     onlyFansCanComment: input.metadata.onlyFansCanComment
   });
+}
+
+function mapPublishStatus(value: unknown, response: Record<string, unknown>): WechatPublishStatus {
+  if (value === 0) return "published";
+  if (value === 1) return "failed";
+  if (value === 2) return "reviewing";
+  if (value === 3) return "rejected";
+  throwWechatError(response, "查询发布状态失败");
 }
 
 export function dataUrlToUploadFile(dataUrl: string, baseName: string): WechatUploadFile {
