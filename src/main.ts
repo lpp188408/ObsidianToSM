@@ -164,12 +164,13 @@ export default class ObsidianToSmPlugin extends Plugin {
       themeId
     });
     const cover = metadata.cover ? (await this.resolveAsset(metadata.cover, file.path)).uploadFile : undefined;
+    const account = this.settings.accounts.find((item) => item.id === this.settings.selectedAccountId);
     return {
       html,
       plainText: body,
       draftConfig: {
-        appId: this.currentAccount().appId,
-        appSecret: this.credentialStore().read(this.currentAccount().id),
+        appId: account?.appId ?? "",
+        appSecret: account ? this.credentialStore().read(account.id) : "",
         thumbMediaId: this.settings.thumbMediaId,
         metadata,
         cover,
