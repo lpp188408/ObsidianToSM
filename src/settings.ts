@@ -3,7 +3,6 @@ import type ObsidianToSmPlugin from "./main";
 
 export interface PluginSettings {
   author: string;
-  defaultAccountName: string;
   customCss: string;
   enableLineNumbers: boolean;
   wechatAppId: string;
@@ -13,7 +12,6 @@ export interface PluginSettings {
 
 export const DEFAULT_SETTINGS: PluginSettings = {
   author: "",
-  defaultAccountName: "",
   customCss: "",
   enableLineNumbers: true,
   wechatAppId: "",
@@ -37,16 +35,6 @@ export class SettingsTab extends PluginSettingTab {
       .addText((text) =>
         text.setValue(this.plugin.settings.author).onChange(async (value) => {
           this.plugin.settings.author = value;
-          await this.plugin.saveSettings();
-        })
-      );
-
-    new Setting(containerEl)
-      .setName("默认公众号")
-      .setDesc("仅用于本地标记，MVP 不会自动登录公众号。")
-      .addText((text) =>
-        text.setValue(this.plugin.settings.defaultAccountName).onChange(async (value) => {
-          this.plugin.settings.defaultAccountName = value;
           await this.plugin.saveSettings();
         })
       );

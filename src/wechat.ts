@@ -1,3 +1,5 @@
+import type { WechatMetadata } from "./metadata";
+
 export interface WechatResponse {
   json: Record<string, unknown>;
 }
@@ -187,4 +189,3 @@ function throwWechatError(response: Record<string, unknown>, fallback: string): 
   const message = typeof response.errmsg === "string" ? response.errmsg : fallback;
   throw new Error(`${message}${code}`);
 }
-import type { WechatMetadata } from "./metadata";
