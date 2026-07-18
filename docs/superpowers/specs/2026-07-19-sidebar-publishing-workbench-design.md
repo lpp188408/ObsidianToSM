@@ -1,8 +1,8 @@
-# Sidebar Publishing Workbench Design
+# ObsidianToSM Sidebar Publishing Workbench Design
 
 ## Goal
 
-Replace the current modal-based publishing flow with a left-sidebar Obsidian workbench. It must render the active note as a complete scrollable WeChat article preview, allow selecting a theme and an Official Account, and publish through the Official Account APIs without manually copying content.
+The plugin is named **ObsidianToSM**. Replace the current modal-based publishing flow with a left-sidebar Obsidian workbench. It must render the active note as a complete scrollable WeChat article preview, allow selecting a theme and an Official Account, and publish through the Official Account APIs without manually copying content.
 
 ## Scope
 
