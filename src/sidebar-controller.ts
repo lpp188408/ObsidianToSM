@@ -1,12 +1,13 @@
 export interface SidebarState {
   html: string;
   plainText: string;
+  coverDataUrl?: string;
   themeId: string;
   isBusy: boolean;
 }
 
 export interface SidebarControllerDependencies {
-  load(themeId: string): Promise<{ html: string; plainText: string }>;
+  load(themeId: string): Promise<{ html: string; plainText: string; coverDataUrl?: string }>;
   publish?(): Promise<void>;
 }
 
@@ -21,7 +22,12 @@ export class SidebarController {
 
   async refresh(): Promise<void> {
     const note = await this.dependencies.load(this.state.themeId);
-    this.state = { ...this.state, ...note };
+    this.state = {
+      ...this.state,
+      html: note.html,
+      plainText: note.plainText,
+      coverDataUrl: note.coverDataUrl
+    };
   }
 
   async setTheme(themeId: string): Promise<void> {
