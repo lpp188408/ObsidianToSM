@@ -50,12 +50,15 @@ export default class ObsidianToSmPlugin extends Plugin {
     await this.saveData(this.settings);
   }
 
-  exportAccountRows(): string { return this.settings.accounts.map((item) => `${item.name}|${item.appId}|`).join("\n"); }
+  exportAccountRows(): string { return this.settings.accounts.map((item) => `${item.name}|${item.appId}|已保存`).join("\n"); }
 
   async saveAccounts(rows: string): Promise<void> {
     const parsed = parseAccountRows(rows);
     const store = this.credentialStore();
-    for (const [id, secret] of parsed.secrets) await store.save(id, secret);
+    for (const [id, secret] of parsed.secrets) {
+      if (secret === "已保存") store.read(id);
+      else await store.save(id, secret);
+    }
     this.settings.accounts = parsed.accounts;
     this.settings.selectedAccountId = parsed.accounts.some((item) => item.id === this.settings.selectedAccountId) ? this.settings.selectedAccountId : (parsed.accounts[0]?.id ?? "");
     await this.saveSettings();
