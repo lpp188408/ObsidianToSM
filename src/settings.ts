@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
+import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import type { WechatAccount } from "./accounts";
 import type ObsidianToSmPlugin from "./main";
 
@@ -72,16 +72,25 @@ export class SettingsTab extends PluginSettingTab {
     new Setting(containerEl).setName("公众号账号").addTextArea((text) => {
       text.inputEl.rows = 6;
       text.inputEl.cols = 48;
+      text.inputEl.wrap = "off";
       text.setValue(rows);
       text.onChange((value) => { rows = value; });
     });
     new Setting(containerEl)
       .addButton((button) => button.setButtonText("保存公众号信息").setCta().onClick(async () => {
-        await this.plugin.saveAccounts(rows);
-        this.display();
+        try {
+          await this.plugin.saveAccounts(rows);
+          this.display();
+        } catch (error) {
+          new Notice(`保存公众号信息失败：${error instanceof Error ? error.message : String(error)}`);
+        }
       }))
       .addButton((button) => button.setButtonText("测试公众号").onClick(async () => {
-        await this.plugin.testAccounts();
+        try {
+          await this.plugin.testAccounts();
+        } catch (error) {
+          new Notice(`测试公众号失败：${error instanceof Error ? error.message : String(error)}`);
+        }
       }));
 
     new Setting(containerEl)
