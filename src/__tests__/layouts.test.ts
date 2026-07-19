@@ -36,10 +36,10 @@ describe("getLayout", () => {
     expect(styles.blockquote).toContain("background:#f3f4f6");
   });
 
-  it("现代商务引用块使用主题色最细实线边框", () => {
+  it("现代商务引用块使用主题色半像素实线边框", () => {
     const styles = getLayout("modern-business").styles(getTheme("tech-blue"));
 
-    expect(styles.blockquote).toContain("border:1px solid #1769aa");
+    expect(styles.blockquote).toContain("border:0.5px solid #1769aa");
     expect(styles.blockquote).not.toContain("border-left:3px solid");
   });
 
