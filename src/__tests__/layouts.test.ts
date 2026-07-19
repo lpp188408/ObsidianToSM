@@ -27,10 +27,11 @@ describe("getLayout", () => {
   it("简洁留白模板使用轻量阅读样式", () => {
     const styles = getLayout("minimal").styles(getTheme("tech-blue"));
 
-    expect(styles.section).toContain("line-height:1.75");
-    expect(styles.h1).toContain("font-size:24px");
-    expect(styles.h2).toContain("font-size:20px");
-    expect(styles.p).toContain("margin:0 0 1em");
+    expect(styles.section).toContain("font-size:15px");
+    expect(styles.section).toContain("line-height:1.7");
+    expect(styles.h1).toContain("font-size:22px");
+    expect(styles.h2).toContain("font-size:18px");
+    expect(styles.p).toContain("margin:0 0 .55em");
     expect(styles.th).toContain("border:1px solid rgb(15 23 42 / 14%)");
     expect(styles.th).toContain("background:rgb(255 255 255 / 48%)");
     expect(styles.blockquote).toContain("background:#f3f4f6");
@@ -43,31 +44,37 @@ describe("getLayout", () => {
     expect(styles.blockquote).not.toContain("border-left:3px solid");
   });
 
-  it.each(LAYOUTS)("$name 的引用块使用更小、更紧凑的文字", (layout) => {
+  it.each(LAYOUTS)("$name 使用统一的紧凑字级", (layout) => {
     const styles = layout.styles(getTheme("tech-blue"));
 
-    expect(styles.blockquote).toContain("font-size:15px");
-    expect(styles.blockquote).toContain("line-height:1.65");
+    expect(styles.section).toContain("font-size:15px");
+    expect(styles.section).toContain("line-height:1.7");
+    expect(styles.h1).toContain("font-size:22px");
+    expect(styles.h2).toContain("font-size:18px");
+    expect(styles.h3).toContain("font-size:16px");
+    expect(styles.blockquote).toContain("font-size:14px");
+    expect(styles.blockquote).toContain("line-height:1.6");
   });
 
   it.each(LAYOUTS)("$name 的表格使用紧凑行距", (layout) => {
     const styles = layout.styles(getTheme("tech-blue"));
 
     expect(styles.table).toContain("table-layout:auto");
-    expect(styles.table).toContain("line-height:1.45");
-    expect(styles.th).toContain("padding:.3em .45em");
-    expect(styles.td).toContain("padding:.3em .45em");
+    expect(styles.table).toContain("font-size:14px");
+    expect(styles.table).toContain("line-height:1.4");
+    expect(styles.th).toContain("padding:.25em .4em");
+    expect(styles.td).toContain("padding:.25em .4em");
   });
 
-  it.each(LAYOUTS.filter((layout) => !["none", "minimal"].includes(layout.id)))("$name 使用紧凑正文组件间距", (layout) => {
+  it.each(LAYOUTS.filter((layout) => !["minimal"].includes(layout.id)))("$name 使用紧凑正文组件间距", (layout) => {
     const styles = layout.styles(getTheme("tech-blue"));
 
-    expect(styles.p).toContain("margin:.65em 0");
-    expect(styles.ul).toContain("margin:.65em 0");
-    expect(styles.ol).toContain("margin:.65em 0");
-    expect(styles.li).toContain("margin:.15em 0");
-    expect(styles.table).toContain("margin:.8em 0");
-    expect(styles.th).toContain("padding:.3em .45em");
-    expect(styles.td).toContain("padding:.3em .45em");
+    expect(styles.p).toContain("margin:.55em 0");
+    expect(styles.ul).toContain("margin:.55em 0");
+    expect(styles.ol).toContain("margin:.55em 0");
+    expect(styles.li).toContain("margin:.12em 0");
+    expect(styles.table).toContain("margin:.65em 0");
+    expect(styles.th).toContain("padding:.25em .4em");
+    expect(styles.td).toContain("padding:.25em .4em");
   });
 });
