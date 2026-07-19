@@ -378,13 +378,13 @@
 }
 
 .obsidian-to-sm-section-tab.is-active {
-  background: color-mix(in srgb, var(--interactive-accent) 18%, transparent) !important;
-  color: var(--interactive-accent);
+  background: rgb(138 100 158 / 26%) !important;
+  color: #805996;
   font-weight: 600;
 }
 
 .obsidian-to-sm-section-tab.is-active:hover {
-  background: color-mix(in srgb, var(--interactive-accent) 22%, transparent) !important;
+  background: rgb(138 100 158 / 32%) !important;
 }
 
 .obsidian-to-sm-sticker-shell {
