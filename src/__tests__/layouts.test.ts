@@ -28,11 +28,19 @@ describe("getLayout", () => {
     const styles = getLayout("minimal").styles(getTheme("tech-blue"));
 
     expect(styles.section).toContain("line-height:1.75");
-    expect(styles.h1).toContain("font-size:1.8em");
-    expect(styles.h2).toContain("font-size:1.45em");
+    expect(styles.h1).toContain("font-size:24px");
+    expect(styles.h2).toContain("font-size:20px");
     expect(styles.p).toContain("margin:0 0 1em");
     expect(styles.th).toContain("border:1px solid rgb(15 23 42 / 14%)");
     expect(styles.th).toContain("background:rgb(255 255 255 / 48%)");
+    expect(styles.blockquote).toContain("background:#f3f4f6");
+  });
+
+  it("现代商务引用块使用轻量左侧强调线", () => {
+    const styles = getLayout("modern-business").styles(getTheme("tech-blue"));
+
+    expect(styles.blockquote).toContain("border-left:3px solid #1769aa");
+    expect(styles.blockquote).not.toContain("border:1px solid");
   });
 
   it.each(LAYOUTS)("$name 的引用块使用更小、更紧凑的文字", (layout) => {
