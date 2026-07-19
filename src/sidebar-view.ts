@@ -41,6 +41,9 @@ export class WechatWorkbenchView extends ItemView {
   private showStickerSettings = false;
   private stickerNote: StickerNote | null = null;
   private stickerExportPages: HTMLElement[] = [];
+  private stickerSettingsCache: StickerSettings | null = null;
+  private stickerSaveQueue: Promise<void> = Promise.resolve();
+  private stickerRenderTimer: number | null = null;
 
   constructor(leaf: WorkspaceLeaf, private readonly controller: SidebarController, private readonly actions: WorkbenchActions) {
     super(leaf);
@@ -78,13 +81,6 @@ export class WechatWorkbenchView extends ItemView {
     const root = this.contentEl.createDiv({ cls: "obsidian-to-sm-workbench" });
     const activeTheme = THEMES.find((item) => item.id === state.themeId) ?? THEMES[0];
     root.style.setProperty("--obsidian-to-sm-publish-accent", activeTheme.accent);
-
-    const header = root.createDiv({ cls: "obsidian-to-sm-workbench-header" });
-    header.createSpan({ cls: "obsidian-to-sm-workbench-title", text: "ObsidianToSM" });
-    header.createSpan({
-      cls: "obsidian-to-sm-workbench-status",
-      text: this.activeSection === "sticker" ? (this.stickerNote ? "贴图已更新" : "等待笔记") : (state.html ? "预览已更新" : "等待笔记")
-    });
 
     const tabs = root.createDiv({ cls: "obsidian-to-sm-section-tabs", attr: { role: "tablist" } });
     for (const item of [{ id: "wechat" as const, label: "公众号" }, { id: "sticker" as const, label: "贴图" }]) {
@@ -174,7 +170,7 @@ export class WechatWorkbenchView extends ItemView {
   }
 
   private renderSticker(root: HTMLElement): void {
-    const settings = this.actions.stickerSettings();
+    const settings = this.currentStickerSettings();
     const shell = root.createDiv({ cls: "obsidian-to-sm-sticker-shell" });
     const toolbar = shell.createDiv({ cls: "obsidian-to-sm-sticker-toolbar" });
     const accountRow = toolbar.createDiv({ cls: "obsidian-to-sm-sticker-account" });
@@ -309,21 +305,24 @@ export class WechatWorkbenchView extends ItemView {
     header.createEl("h3", { text: "贴图排版设置" });
     this.iconButton(header, "x", "关闭贴图设置", () => { this.showStickerSettings = false; this.render(); });
 
+    this.createStickerSectionHeading(drawer, "排版布局");
     this.createSegmentedSetting(drawer, "导出模式", [
       { value: "single", label: "单张长图" },
       { value: "multi", label: "多页切片" },
-      { value: "hr", label: "分割线" }
+      { value: "hr", label: "按分割线" }
     ], settings.pageMode, (value) => this.updateStickerSettings({ pageMode: value as StickerSettings["pageMode"] }));
 
     this.createSegmentedSetting(drawer, "比例预设", [
-      { value: "3-4", label: "3:4" }, { value: "9-16", label: "9:16" }, { value: "1-1", label: "1:1" },
-      { value: "4-3", label: "4:3" }, { value: "16-9", label: "16:9" }, { value: "custom", label: "自定义" }
-    ], settings.presetRatio, (value) => this.saveFullStickerSettings(applyStickerRatio(settings, value)));
+      { value: "3-4", label: "小红书 3:4" }, { value: "9-16", label: "故事 9:16" }, { value: "1-1", label: "正方形 1:1" },
+      { value: "4-3", label: "标准 4:3" }, { value: "16-9", label: "宽屏 16:9" }, { value: "custom", label: "自定义" }
+    ], settings.presetRatio, (value) => this.saveFullStickerSettings(applyStickerRatio(this.currentStickerSettings(), value)));
 
     const dimensions = drawer.createDiv({ cls: "obsidian-to-sm-sticker-setting-grid" });
     this.createNumberSetting(dimensions, "宽度", settings.width, 320, 1440, (width) => this.updateStickerSettings({ width, presetRatio: "custom" }));
     this.createNumberSetting(dimensions, "页高度", settings.pageHeight, 320, 16000, (pageHeight) => this.updateStickerSettings({ pageHeight, presetRatio: "custom" }), settings.pageMode === "single");
+    if (settings.pageMode === "single") dimensions.createDiv({ cls: "obsidian-to-sm-sticker-setting-hint", text: "长图模式下高度随正文自动计算" });
 
+    this.createStickerSectionHeading(drawer, "排版与字体");
     const fontGroup = this.settingGroup(drawer, "字体");
     const fontSelect = fontGroup.createEl("select", { cls: "obsidian-to-sm-sticker-select" });
     for (const font of ["默认", "PingFang SC", "Microsoft YaHei", "SimHei", "KaiTi", "Arial", "Georgia", "Courier New"]) {
@@ -335,14 +334,16 @@ export class WechatWorkbenchView extends ItemView {
     if (fontSelect.value === "默认" && settings.fontFamily !== "默认") customFont.value = settings.fontFamily;
     customFont.addEventListener("change", () => this.updateStickerSettings({ fontFamily: customFont.value.trim() || "默认" }));
 
-    this.createRangeSetting(drawer, "字号", settings.fontSize, 12, 28, 1, (fontSize) => this.updateStickerSettings({ fontSize }));
+    this.createRangeSetting(drawer, "字号大小", settings.fontSize, 12, 28, 1, (fontSize) => this.updateStickerSettings({ fontSize }));
+
+    this.createStickerSectionHeading(drawer, "样式与背景");
     this.createSegmentedSetting(drawer, "背景", [
       { value: "color", label: "纯色" }, { value: "gradient", label: "渐变" }
     ], settings.backgroundType, (value) => this.updateStickerSettings({ backgroundType: value as StickerSettings["backgroundType"] }));
     if (settings.backgroundType === "color") {
       const color = this.settingGroup(drawer, "背景颜色").createEl("input", { cls: "obsidian-to-sm-sticker-color", attr: { type: "color" } });
       color.value = settings.backgroundColor;
-      color.addEventListener("input", () => this.updateStickerSettings({ backgroundColor: color.value }));
+      color.addEventListener("change", () => this.updateStickerSettings({ backgroundColor: color.value }));
     } else {
       const gradient = this.settingGroup(drawer, "渐变背景").createEl("select", { cls: "obsidian-to-sm-sticker-select" });
       const presets = [
@@ -355,8 +356,8 @@ export class WechatWorkbenchView extends ItemView {
       gradient.value = settings.backgroundGradient;
       gradient.addEventListener("change", () => this.updateStickerSettings({ backgroundGradient: gradient.value }));
     }
-    this.createRangeSetting(drawer, "页面留白", settings.padding, 16, 80, 4, (padding) => this.updateStickerSettings({ padding }));
-    this.createRangeSetting(drawer, "页面圆角", settings.borderRadius, 0, 32, 2, (borderRadius) => this.updateStickerSettings({ borderRadius }));
+    this.createRangeSetting(drawer, "内边距", settings.padding, 16, 80, 4, (padding) => this.updateStickerSettings({ padding }));
+    this.createRangeSetting(drawer, "圆角大小", settings.borderRadius, 0, 32, 2, (borderRadius) => this.updateStickerSettings({ borderRadius }));
   }
 
   private createSegmentedSetting(
@@ -368,9 +369,14 @@ export class WechatWorkbenchView extends ItemView {
   ): void {
     const group = this.settingGroup(parent, label);
     const control = group.createDiv({ cls: "obsidian-to-sm-sticker-segmented" });
+    control.style.gridTemplateColumns = `repeat(${Math.min(options.length, 3)}, minmax(0, 1fr))`;
     for (const option of options) {
       const button = control.createEl("button", { cls: option.value === value ? "is-active" : "", text: option.label });
-      button.addEventListener("click", () => onChange(option.value));
+      button.addEventListener("click", () => {
+        for (const sibling of Array.from(control.children)) sibling.removeClass("is-active");
+        button.addClass("is-active");
+        onChange(option.value);
+      });
     }
   }
 
@@ -383,10 +389,17 @@ export class WechatWorkbenchView extends ItemView {
   }
 
   private createRangeSetting(parent: HTMLElement, label: string, value: number, min: number, max: number, step: number, onChange: (value: number) => void): void {
-    const group = this.settingGroup(parent, `${label} · ${value}px`);
+    const group = parent.createDiv({ cls: "obsidian-to-sm-sticker-setting-group is-range" });
+    const heading = group.createDiv({ cls: "obsidian-to-sm-sticker-range-heading" });
+    heading.createEl("label", { text: label });
+    heading.createSpan({ text: `${value}px` });
     const input = group.createEl("input", { cls: "obsidian-to-sm-sticker-range", attr: { type: "range", min: String(min), max: String(max), step: String(step) } });
     input.value = String(value);
     input.addEventListener("change", () => onChange(Number(input.value)));
+  }
+
+  private createStickerSectionHeading(parent: HTMLElement, text: string): void {
+    parent.createEl("h4", { cls: "obsidian-to-sm-sticker-section-heading", text });
   }
 
   private settingGroup(parent: HTMLElement, label: string): HTMLElement {
@@ -396,12 +409,23 @@ export class WechatWorkbenchView extends ItemView {
   }
 
   private updateStickerSettings(update: Partial<StickerSettings>): void {
-    void this.saveFullStickerSettings({ ...this.actions.stickerSettings(), ...update });
+    this.saveFullStickerSettings({ ...this.currentStickerSettings(), ...update });
   }
 
-  private async saveFullStickerSettings(settings: StickerSettings): Promise<void> {
-    await this.actions.saveStickerSettings(settings);
-    this.render();
+  private currentStickerSettings(): StickerSettings {
+    return this.stickerSettingsCache ?? this.actions.stickerSettings();
+  }
+
+  private saveFullStickerSettings(settings: StickerSettings): void {
+    this.stickerSettingsCache = settings;
+    if (this.stickerRenderTimer !== null) window.clearTimeout(this.stickerRenderTimer);
+    this.stickerRenderTimer = window.setTimeout(() => {
+      this.stickerRenderTimer = null;
+      this.render();
+    }, 120);
+    this.stickerSaveQueue = this.stickerSaveQueue
+      .then(() => this.actions.saveStickerSettings(settings))
+      .catch((error) => { new Notice(`保存贴图设置失败：${error instanceof Error ? error.message : String(error)}`); });
   }
 
   private async exportSticker(): Promise<void> {

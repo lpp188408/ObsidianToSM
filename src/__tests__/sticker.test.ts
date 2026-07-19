@@ -29,6 +29,19 @@ describe("贴图设置", () => {
     });
   });
 
+  it.each([
+    ["3-4", 1200],
+    ["9-16", 1600],
+    ["1-1", 900],
+    ["4-3", 675],
+    ["16-9", 506]
+  ])("比例预设 %s 可正确应用", (presetRatio, pageHeight) => {
+    expect(applyStickerRatio({ ...DEFAULT_STICKER_SETTINGS, width: 900 }, presetRatio)).toMatchObject({
+      presetRatio,
+      pageHeight
+    });
+  });
+
   it("旧配置升级时保留已有值并补全贴图默认值", () => {
     expect(mergeStickerSettings({ width: 900, fontSize: 20 })).toEqual({
       ...DEFAULT_STICKER_SETTINGS,
