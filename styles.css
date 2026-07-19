@@ -87,7 +87,7 @@
   border-bottom: 1px solid var(--background-modifier-border);
   display: grid;
   gap: 10px;
-  grid-template-columns: minmax(220px, 54%) minmax(260px, 1fr);
+  grid-template-columns: minmax(0, 54%) minmax(0, 1fr);
   padding: 8px;
 }
 
@@ -141,6 +141,7 @@
 .obsidian-to-sm-toolbar {
   align-items: center;
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
   justify-content: flex-end;
   margin-top: auto;
@@ -287,10 +288,4 @@
 
 .obsidian-to-sm-sidebar-preview.is-desktop .obsidian-to-sm {
   max-width: none;
-}
-
-@container obsidian-to-sm-workbench (max-width: 720px) {
-  .obsidian-to-sm-top-panel {
-    grid-template-columns: 1fr;
-  }
 }
