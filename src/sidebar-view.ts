@@ -58,7 +58,12 @@ export class WechatWorkbenchView extends ItemView {
   getIcon(): string { return "send"; }
 
   async onOpen(): Promise<void> {
+    this.contentEl.addClass("obsidian-to-sm-workbench-view");
     await this.refreshWechat();
+  }
+
+  async onClose(): Promise<void> {
+    this.contentEl.removeClass("obsidian-to-sm-workbench-view");
   }
 
   private async refreshWechat(): Promise<void> {
