@@ -232,6 +232,11 @@
   width: 12px;
 }
 
+.obsidian-to-sm-theme-swatch.is-original {
+  background: linear-gradient(135deg, transparent 43%, #6b7280 44%, #6b7280 56%, transparent 57%);
+  border-color: var(--background-modifier-border);
+}
+
 .obsidian-to-sm-preview-modes {
   display: inline-flex;
   flex: 0 0 auto;

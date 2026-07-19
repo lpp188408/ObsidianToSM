@@ -127,10 +127,10 @@ export class WechatWorkbenchView extends ItemView {
     const themes = themeRow.createDiv({ cls: "obsidian-to-sm-themes", attr: { "aria-label": "选择颜色主题" } });
     for (const item of THEMES) {
       const theme = themes.createEl("button", {
-        cls: `obsidian-to-sm-theme-swatch${item.id === state.themeId ? " is-active" : ""}`,
+        cls: `obsidian-to-sm-theme-swatch${item.isOriginal ? " is-original" : ""}${item.id === state.themeId ? " is-active" : ""}`,
         attr: { "aria-label": `颜色：${item.name}`, "data-tooltip-position": "bottom" }
       });
-      theme.style.backgroundColor = item.accent;
+      if (!item.isOriginal) theme.style.backgroundColor = item.accent;
       theme.addEventListener("click", () => void this.controller.setTheme(item.id).then(() => this.render()));
     }
 

@@ -2,8 +2,9 @@ import { describe, expect, it } from "vitest";
 import { THEMES, getTheme } from "../themes";
 
 describe("getTheme", () => {
-  it("提供六个可选内置主题", () => {
+  it("提供原始默认和六个颜色主题", () => {
     expect(THEMES.map((theme) => theme.id)).toEqual([
+      "original-default",
       "minimal-mono",
       "tech-blue",
       "business-green",
@@ -13,7 +14,7 @@ describe("getTheme", () => {
     ]);
   });
 
-  it("未知主题回退为简约黑白", () => {
-    expect(getTheme("unknown").id).toBe("minimal-mono");
+  it("未知主题回退为原始默认", () => {
+    expect(getTheme("unknown").id).toBe("original-default");
   });
 });

@@ -6,9 +6,11 @@ export interface WechatTheme {
   heading: string;
   quoteBackground: string;
   codeBackground: string;
+  isOriginal?: boolean;
 }
 
 export const THEMES: readonly WechatTheme[] = [
+  { id: "original-default", name: "原始默认", accent: "#6b7280", body: "#1f2937", heading: "#111827", quoteBackground: "#f7f7f7", codeBackground: "#f7f7f7", isOriginal: true },
   { id: "minimal-mono", name: "简约黑白", accent: "#222222", body: "#222222", heading: "#111111", quoteBackground: "#f5f5f5", codeBackground: "#f6f6f6" },
   { id: "tech-blue", name: "科技蓝", accent: "#1769aa", body: "#1f2937", heading: "#0f3d66", quoteBackground: "#edf6ff", codeBackground: "#f4f8fc" },
   { id: "business-green", name: "商务绿", accent: "#2f8f6f", body: "#202124", heading: "#1e5e49", quoteBackground: "#f2faf6", codeBackground: "#f4f8f6" },
