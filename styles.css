@@ -377,23 +377,38 @@
   border-bottom: 1px solid var(--background-modifier-border);
   display: grid;
   flex: 0 0 auto;
-  gap: 6px;
+  gap: 8px;
   padding: 8px;
 }
 
 .obsidian-to-sm-sticker-account {
+  align-items: center;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  display: flex;
+  min-height: 38px;
   min-width: 0;
+  padding: 3px 6px;
+}
+
+.obsidian-to-sm-sticker-account .obsidian-to-sm-account {
+  height: 30px;
 }
 
 .obsidian-to-sm-sticker-actions {
   align-items: center;
-  display: grid;
-  gap: 4px;
-  grid-template-columns: repeat(6, minmax(30px, 1fr));
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  display: flex;
+  height: 38px;
+  justify-content: space-between;
+  padding: 3px 6px;
 }
 
 .obsidian-to-sm-sticker-actions .obsidian-to-sm-icon-button {
-  justify-self: center;
+  flex-basis: 30px;
 }
 
 .obsidian-to-sm-sticker-preview {
@@ -567,16 +582,16 @@
 }
 
 .obsidian-to-sm-sticker-backdrop {
-  background: rgb(0 0 0 / 12%);
+  background: rgb(0 0 0 / 8%);
   inset: 0;
   position: absolute;
   z-index: 20;
 }
 
 .obsidian-to-sm-sticker-settings {
-  background: var(--background-primary);
+  background: var(--background-secondary);
   border: 1px solid var(--background-modifier-border);
-  border-radius: 8px;
+  border-radius: 6px;
   bottom: 6px;
   box-shadow: none;
   max-width: calc(100% - 12px);
@@ -591,7 +606,7 @@
 
 .obsidian-to-sm-sticker-settings-header {
   align-items: center;
-  background: var(--background-primary);
+  background: var(--background-secondary);
   border-bottom: 1px solid var(--background-modifier-border);
   display: flex;
   justify-content: space-between;
@@ -603,11 +618,15 @@
 }
 
 .obsidian-to-sm-sticker-settings-header h3 {
-  border-left: 2px solid var(--interactive-accent);
-  font-size: 13px;
+  background: none !important;
+  border-left: 0 !important;
+  border-inline-start: 0 !important;
+  box-shadow: none !important;
+  font-size: 12px;
+  font-weight: 600;
   line-height: 18px;
   margin: 0;
-  padding-left: 9px;
+  padding-left: 0 !important;
 }
 
 .obsidian-to-sm-sticker-setting-group {
@@ -617,19 +636,38 @@
 .obsidian-to-sm-sticker-setting-group > label {
   color: var(--text-muted);
   display: block;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
   margin-bottom: 5px;
 }
 
 .obsidian-to-sm-sticker-section-heading {
-  border-left: 2px solid var(--interactive-accent);
+  background: none !important;
+  border-left: 0 !important;
+  border-inline-start: 0 !important;
+  border-top: 1px solid var(--background-modifier-border);
+  box-shadow: none !important;
   color: var(--text-normal);
   font-size: 12px;
-  font-weight: 650;
+  font-weight: 600;
   line-height: 18px;
-  margin: 15px 0 10px;
-  padding-left: 9px;
+  margin: 12px 0 10px;
+  padding-left: 0 !important;
+  padding-top: 12px;
+}
+
+.obsidian-to-sm-sticker-settings-header h3::before,
+.obsidian-to-sm-sticker-settings-header h3::after,
+.obsidian-to-sm-sticker-section-heading::before,
+.obsidian-to-sm-sticker-section-heading::after {
+  content: none !important;
+  display: none !important;
+}
+
+.obsidian-to-sm-sticker-settings-header + .obsidian-to-sm-sticker-section-heading {
+  border-top: 0;
+  margin-top: 10px;
+  padding-top: 0;
 }
 
 .obsidian-to-sm-sticker-setting-grid {
@@ -653,13 +691,13 @@
 }
 
 .obsidian-to-sm-sticker-segmented button {
-  background: var(--background-secondary);
+  background: var(--background-primary);
   border: 1px solid var(--background-modifier-border);
-  border-radius: 5px;
+  border-radius: 4px;
   color: var(--text-muted);
   font-family: inherit;
-  font-size: 10.5px;
-  font-weight: 550;
+  font-size: 11px;
+  font-weight: 500;
   min-height: 30px;
   padding: 4px;
   box-shadow: none;
@@ -673,11 +711,13 @@
 
 .obsidian-to-sm-sticker-input,
 .obsidian-to-sm-sticker-select {
+  background: var(--background-primary);
   border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
   box-sizing: border-box;
   box-shadow: none;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
   height: 32px;
   min-height: 32px;
   width: 100%;
@@ -706,8 +746,8 @@
 
 .obsidian-to-sm-sticker-range-heading label {
   color: var(--text-muted);
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .obsidian-to-sm-sticker-range-heading span {
