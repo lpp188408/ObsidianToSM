@@ -271,18 +271,23 @@
 }
 
 .obsidian-to-sm-draft-button {
-  border-color: var(--background-modifier-border);
-  color: var(--text-normal);
-}
-
-.obsidian-to-sm-publish-button {
   background: var(--obsidian-to-sm-publish-accent, var(--interactive-accent));
   color: var(--text-on-accent);
 }
 
-.obsidian-to-sm-publish-button:hover {
+.obsidian-to-sm-draft-button:hover {
   filter: brightness(0.94);
   color: var(--text-on-accent);
+}
+
+.obsidian-to-sm-publish-button {
+  border-color: var(--background-modifier-border);
+  color: var(--text-normal);
+}
+
+.obsidian-to-sm-publish-button:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
 }
 
 .obsidian-to-sm-themes {
