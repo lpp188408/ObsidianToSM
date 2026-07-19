@@ -4,6 +4,7 @@ import {
   applyStickerRatio,
   buildStickerExportPaths,
   calculateStickerPageOffsets,
+  createDefaultStickerSettings,
   mergeStickerSettings,
   validateStickerPages
 } from "../sticker";
@@ -48,6 +49,15 @@ describe("贴图设置", () => {
       width: 900,
       fontSize: 20
     });
+  });
+
+  it("恢复默认设置时返回独立的完整配置", () => {
+    const restored = createDefaultStickerSettings();
+
+    expect(restored).toEqual(DEFAULT_STICKER_SETTINGS);
+    expect(restored).not.toBe(DEFAULT_STICKER_SETTINGS);
+    restored.width = 900;
+    expect(DEFAULT_STICKER_SETTINGS.width).toBe(750);
   });
 });
 

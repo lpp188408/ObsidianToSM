@@ -8,6 +8,7 @@ import type { WechatUploadFile } from "./wechat";
 import {
   applyStickerRatio,
   calculateStickerPageOffsets,
+  createDefaultStickerSettings,
   validateStickerPages,
   type StickerBlockMetric,
   type StickerNote,
@@ -44,6 +45,7 @@ export class WechatWorkbenchView extends ItemView {
   private stickerSettingsCache: StickerSettings | null = null;
   private stickerSaveQueue: Promise<void> = Promise.resolve();
   private stickerRenderTimer: number | null = null;
+  private confirmStickerReset = false;
 
   constructor(leaf: WorkspaceLeaf, private readonly controller: SidebarController, private readonly actions: WorkbenchActions) {
     super(leaf);
@@ -303,7 +305,28 @@ export class WechatWorkbenchView extends ItemView {
     const drawer = shell.createDiv({ cls: "obsidian-to-sm-sticker-settings" });
     const header = drawer.createDiv({ cls: "obsidian-to-sm-sticker-settings-header" });
     header.createEl("h3", { text: "贴图排版设置" });
-    this.iconButton(header, "x", "关闭贴图设置", () => { this.showStickerSettings = false; this.render(); });
+    const headerActions = header.createDiv({ cls: "obsidian-to-sm-sticker-settings-actions" });
+    const resetButton = headerActions.createEl("button", {
+      cls: `obsidian-to-sm-sticker-restore-button${this.confirmStickerReset ? " is-confirming" : ""}`,
+      text: this.confirmStickerReset ? "确认恢复" : "恢复默认",
+      attr: { "aria-label": "恢复贴图默认设置" }
+    });
+    resetButton.addEventListener("click", () => {
+      if (!this.confirmStickerReset) {
+        this.confirmStickerReset = true;
+        resetButton.addClass("is-confirming");
+        resetButton.setText("确认恢复");
+        return;
+      }
+      this.confirmStickerReset = false;
+      this.saveFullStickerSettings(createDefaultStickerSettings());
+      new Notice("贴图排版已恢复默认设置");
+    });
+    this.iconButton(headerActions, "x", "关闭贴图设置", () => {
+      this.showStickerSettings = false;
+      this.confirmStickerReset = false;
+      this.render();
+    });
 
     this.createStickerSectionHeading(drawer, "排版布局");
     this.createSegmentedSetting(drawer, "导出模式", [

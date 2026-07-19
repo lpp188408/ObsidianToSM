@@ -763,6 +763,39 @@
   margin-bottom: 10px;
 }
 
+.obsidian-to-sm-sticker-settings-actions {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+}
+
+.obsidian-to-sm-sticker-restore-button {
+  background: var(--background-primary) !important;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  box-shadow: none;
+  color: var(--text-muted) !important;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  height: 26px;
+  line-height: 24px;
+  min-width: 60px;
+  padding: 0 8px;
+  white-space: nowrap;
+}
+
+.obsidian-to-sm-sticker-restore-button:hover {
+  border-color: var(--interactive-accent);
+  color: var(--interactive-accent) !important;
+}
+
+.obsidian-to-sm-sticker-restore-button.is-confirming {
+  background: color-mix(in srgb, var(--text-error) 10%, var(--background-primary)) !important;
+  border-color: var(--text-error);
+  color: var(--text-error) !important;
+}
+
 @container obsidian-to-sm-workbench (max-width: 340px) {
   .obsidian-to-sm-sticker-toolbar {
     padding: 6px;

@@ -46,6 +46,10 @@ export const DEFAULT_STICKER_SETTINGS: StickerSettings = {
   borderRadius: 16
 };
 
+export function createDefaultStickerSettings(): StickerSettings {
+  return { ...DEFAULT_STICKER_SETTINGS };
+}
+
 export function mergeStickerSettings(settings?: Partial<StickerSettings>): StickerSettings {
   return { ...DEFAULT_STICKER_SETTINGS, ...settings };
 }

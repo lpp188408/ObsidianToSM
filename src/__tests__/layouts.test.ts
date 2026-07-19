@@ -22,4 +22,16 @@ describe("getLayout", () => {
     expect(styles.h2).toContain("#1769aa");
     expect(styles.a).toContain("#1769aa");
   });
+
+  it.each(LAYOUTS.filter((layout) => layout.id !== "none"))("$name 使用紧凑正文组件间距", (layout) => {
+    const styles = layout.styles(getTheme("tech-blue"));
+
+    expect(styles.p).toContain("margin:.65em 0");
+    expect(styles.ul).toContain("margin:.65em 0");
+    expect(styles.ol).toContain("margin:.65em 0");
+    expect(styles.li).toContain("margin:.15em 0");
+    expect(styles.table).toContain("margin:.8em 0");
+    expect(styles.th).toContain("padding:.42em .55em");
+    expect(styles.td).toContain("padding:.42em .55em");
+  });
 });
