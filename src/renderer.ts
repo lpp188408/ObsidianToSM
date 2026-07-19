@@ -94,8 +94,7 @@ function baseCss(styles: LayoutStyles): string {
 .obsidian-to-sm table{${styles.table}}
 .obsidian-to-sm th{${styles.th}}
 .obsidian-to-sm td{${styles.td}}
-.obsidian-to-sm .code-line{display:block;position:relative;padding-left:3em;min-height:1.5em;}
-.obsidian-to-sm .code-line::before{content:attr(data-line);position:absolute;left:0;width:2em;text-align:right;color:#8a8f98;}
+.obsidian-to-sm .code-line{display:block;min-height:1.5em;}
 `;
 }
 

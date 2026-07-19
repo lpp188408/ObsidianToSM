@@ -1,5 +1,6 @@
 import { ItemView, Notice, setIcon, WorkspaceLeaf } from "obsidian";
 import { toPng } from "html-to-image";
+import { copyPngToClipboard } from "./clipboard";
 import { LAYOUTS } from "./layouts";
 import { THEMES } from "./themes";
 import { SidebarController } from "./sidebar-controller";
@@ -181,6 +182,7 @@ export class WechatWorkbenchView extends ItemView {
     this.iconButton(actions, "images", "创建纯图片公众号草稿", () => void this.createStickerDraft(false));
     this.iconButton(actions, "file-text", "创建图片加描述公众号草稿", () => void this.createStickerDraft(true));
     this.iconButton(actions, "download", "导出贴图到 Vault", () => void this.exportSticker());
+    this.iconButton(actions, "clipboard", "复制首张贴图图片", () => void this.copyStickerImage());
     this.iconButton(actions, "copy", "复制贴图文案", () => void this.copyStickerText());
     this.iconButton(actions, "refresh-cw", "刷新贴图", () => void this.refreshSticker());
     this.iconButton(actions, "settings-2", "打开贴图设置", () => { this.showStickerSettings = true; this.render(); });
@@ -470,6 +472,16 @@ export class WechatWorkbenchView extends ItemView {
   private async copyStickerText(): Promise<void> {
     if (!this.stickerNote) return;
     await this.run(() => this.actions.copyStickerText(this.stickerNote!.plainText));
+  }
+
+  private async copyStickerImage(): Promise<void> {
+    if (!this.stickerNote) return;
+    await this.run(async () => {
+      const [firstPage] = await this.captureStickerPages(false);
+      if (!firstPage) throw new Error("没有可复制的贴图图片");
+      await copyPngToClipboard(firstPage);
+      new Notice("已复制首张贴图图片，可直接粘贴到微信或其他应用");
+    });
   }
 
   private async captureStickerPages(forWechat: boolean): Promise<string[]> {

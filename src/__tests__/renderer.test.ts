@@ -14,6 +14,7 @@ describe("renderMarkdownToWechatHtml", () => {
     expect(html).toContain("标题</h1>");
     expect(html).toContain("hljs");
     expect(html).toContain('data-line="1"');
+    expect(html).not.toContain(".code-line::before");
   });
 
   const sample = `# 主标题
