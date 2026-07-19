@@ -2,6 +2,7 @@ import { App, Modal, Notice } from "obsidian";
 import { copyHtmlToClipboard } from "./clipboard";
 import type { WechatMetadata } from "./metadata";
 import { publishWechatDraft, type WechatRequester, type WechatUploadFile } from "./wechat";
+import { SuccessModal } from "./success-modal";
 
 export interface DraftConfig {
   appId: string;
@@ -54,14 +55,14 @@ export class PreviewModal extends Modal {
       return;
     }
     if (!this.draftConfig.cover && !this.draftConfig.thumbMediaId) {
-      new Notice("请在笔记 frontmatter 设置封面，或在插件设置中填写封面 thumb_media_id");
+      new Notice("请在右侧工作台选择本地封面，或在插件设置中填写封面 thumb_media_id");
       return;
     }
 
     try {
       new Notice("正在上传正文图片并创建草稿…");
-      const mediaId = await publishWechatDraft({ ...this.draftConfig, html: this.html });
-      new Notice(`草稿已创建：${mediaId}`);
+      await publishWechatDraft({ ...this.draftConfig, html: this.html });
+      new SuccessModal(this.app, "已加入草稿箱", "文章已成功加入公众号草稿箱。").open();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       new Notice(`发送草稿失败：${message}`);

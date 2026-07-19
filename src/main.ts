@@ -11,6 +11,7 @@ import { DEFAULT_SETTINGS, PluginSettings, SettingsTab } from "./settings";
 import { publishWechatArticle, publishWechatDraft, type WechatUploadFile } from "./wechat";
 import { SidebarController } from "./sidebar-controller";
 import { VIEW_TYPE_WECHAT_WORKBENCH, WechatWorkbenchView } from "./sidebar-view";
+import { SuccessModal } from "./success-modal";
 
 export default class ObsidianToSmPlugin extends Plugin {
   declare settings: PluginSettings;
@@ -89,8 +90,8 @@ export default class ObsidianToSmPlugin extends Plugin {
       const note = await this.prepareActiveNote(themeId);
       if (!note) return;
       new Notice("正在上传正文图片并创建草稿…");
-      const mediaId = await publishWechatDraft({ ...note.draftConfig, html: note.html });
-      new Notice(`草稿已创建：${mediaId}`);
+      await publishWechatDraft({ ...note.draftConfig, html: note.html });
+      new SuccessModal(this.app, "已加入草稿箱", "文章已成功加入公众号草稿箱。").open();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       new Notice(`发送草稿失败：${message}`);
@@ -102,7 +103,7 @@ export default class ObsidianToSmPlugin extends Plugin {
       const note = await this.prepareActiveNote(themeId);
       if (!note) return;
       const result = await publishWechatArticle({ ...note.draftConfig, html: note.html });
-      if (result.status === "published") new Notice("文章已直接发表");
+      if (result.status === "published") new SuccessModal(this.app, "发表成功", "文章已成功发表到公众号。").open();
       else if (result.status === "reviewing") new Notice(`发布任务已提交，微信仍在处理中（${result.publishId}）`);
       else throw new Error(result.status === "rejected" ? "微信平台审核未通过" : "微信发布失败");
     } catch (error) { throw new Error(`直接发布失败：${error instanceof Error ? error.message : String(error)}`); }
