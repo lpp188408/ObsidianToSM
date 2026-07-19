@@ -184,14 +184,14 @@ export class WechatWorkbenchView extends ItemView {
     const toolbar = shell.createDiv({ cls: "obsidian-to-sm-sticker-toolbar" });
     const accountRow = toolbar.createDiv({ cls: "obsidian-to-sm-sticker-account" });
     this.createAccountSelect(accountRow);
+    this.iconButton(accountRow, "refresh-cw", "刷新贴图", () => void this.refreshSticker(), "obsidian-to-sm-sticker-top-action");
+    this.iconButton(accountRow, "settings-2", "打开贴图设置", () => { this.showStickerSettings = true; this.render(); }, "obsidian-to-sm-sticker-top-action");
     const actions = toolbar.createDiv({ cls: "obsidian-to-sm-sticker-actions" });
     this.iconButton(actions, "images", "创建纯图片公众号草稿", () => void this.createStickerDraft(false), "", "纯图稿");
     this.iconButton(actions, "file-text", "创建图片加描述公众号草稿", () => void this.createStickerDraft(true), "", "图文稿");
     this.iconButton(actions, "download", "导出贴图到 Vault", () => void this.exportSticker(), "", "导出");
     this.iconButton(actions, "clipboard", "复制首张贴图图片", () => void this.copyStickerImage(), "", "复制图");
     this.iconButton(actions, "copy", "复制贴图文案", () => void this.copyStickerText(), "", "复制文");
-    this.iconButton(actions, "refresh-cw", "刷新贴图", () => void this.refreshSticker(), "", "刷新");
-    this.iconButton(actions, "settings-2", "打开贴图设置", () => { this.showStickerSettings = true; this.render(); }, "", "设置");
 
     const preview = shell.createDiv({ cls: "obsidian-to-sm-sticker-preview" });
     if (!this.stickerNote) {

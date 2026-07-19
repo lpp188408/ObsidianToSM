@@ -416,7 +416,14 @@
 }
 
 .obsidian-to-sm-sticker-account .obsidian-to-sm-account {
+  flex: 1 1 auto;
   height: 30px;
+  min-width: 0;
+  width: auto;
+}
+
+.obsidian-to-sm-sticker-top-action {
+  flex: 0 0 30px;
 }
 
 .obsidian-to-sm-sticker-actions {
@@ -424,20 +431,21 @@
   background: var(--background-secondary);
   border: 1px solid var(--background-modifier-border);
   border-radius: 6px;
-  display: flex;
+  display: grid;
   height: 38px;
-  gap: 2px;
-  justify-content: flex-start;
+  gap: 4px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   min-width: 0;
-  overflow-x: auto;
+  overflow: hidden;
   padding: 3px 6px;
 }
 
 .obsidian-to-sm-sticker-actions .obsidian-to-sm-icon-button {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
   gap: 4px;
-  padding: 0 6px;
-  width: auto;
+  min-width: 0;
+  padding: 0 4px;
+  width: 100%;
 }
 
 .obsidian-to-sm-sticker-actions .obsidian-to-sm-icon-button svg {
@@ -843,6 +851,15 @@
 
   .obsidian-to-sm-sticker-actions {
     gap: 2px;
+  }
+
+  .obsidian-to-sm-sticker-actions .obsidian-to-sm-icon-button {
+    gap: 2px;
+    padding: 0 2px;
+  }
+
+  .obsidian-to-sm-sticker-actions .obsidian-to-sm-icon-button-label {
+    font-size: 11px;
   }
 
   .obsidian-to-sm-sticker-preview {
