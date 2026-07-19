@@ -109,6 +109,26 @@ export const LAYOUTS: readonly WechatLayout[] = [
       pre: "margin:.8em 0;padding:10px;overflow:auto;background:#101820;border-radius:4px;color:#d7e2ea;",
       code: `font-family:'SFMono-Regular',Consolas,'Liberation Mono',monospace;font-size:13px;color:#d7e2ea;`
     })
+  },
+  {
+    id: "minimal",
+    name: "简洁留白",
+    styles: (theme) => ({
+      ...baseStyles(theme),
+      section: `font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;line-height:1.75;color:${theme.body};`,
+      h1: `font-size:24px;line-height:1.4;text-align:left;margin:.85em 0 .6em;font-weight:700;color:${theme.heading};`,
+      h2: `font-size:20px;line-height:1.5;margin:1.15em 0 .5em;padding-bottom:.28em;border-bottom:1px solid ${theme.accent};font-weight:700;color:${theme.heading};`,
+      h3: `font-size:18px;line-height:1.5;margin:1em 0 .4em;font-weight:700;color:${theme.heading};`,
+      p: `margin:.55em 0;color:${theme.body};`,
+      blockquote: `margin:.65em 0;padding:.45em .7em;border:0;border-left:3px solid ${theme.accent};background:#f6f8fb;color:${theme.body};`,
+      ul: "margin:.55em 0;padding-left:1.3em;",
+      ol: "margin:.55em 0;padding-left:1.3em;",
+      li: `margin:.12em 0;color:${theme.body};`,
+      hr: "margin:1.2em 0;border:0;border-top:1px solid #d9dee7;",
+      table: "width:100%;margin:.65em 0;border-collapse:collapse;font-size:.92em;line-height:1.55;",
+      th: `padding:.4em .5em;border:1px solid #d9dee7;background:#ffffff;color:${theme.heading};text-align:left;font-weight:700;`,
+      td: `padding:.4em .5em;border:1px solid #d9dee7;color:${theme.body};vertical-align:top;`
+    })
   }
 ];
 

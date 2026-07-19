@@ -3,13 +3,14 @@ import { getLayout, LAYOUTS } from "../layouts";
 import { getTheme } from "../themes";
 
 describe("getLayout", () => {
-  it("提供基础排版和四套内置模板", () => {
+  it("提供基础排版和五套内置模板", () => {
     expect(LAYOUTS.map((layout) => layout.id)).toEqual([
       "none",
       "editorial-magazine",
       "modern-business",
       "reading-notes",
-      "technical-blueprint"
+      "technical-blueprint",
+      "minimal"
     ]);
   });
 
@@ -23,7 +24,17 @@ describe("getLayout", () => {
     expect(styles.a).toContain("#1769aa");
   });
 
-  it.each(LAYOUTS.filter((layout) => layout.id !== "none"))("$name 使用紧凑正文组件间距", (layout) => {
+  it("简洁留白模板使用轻量阅读样式", () => {
+    const styles = getLayout("minimal").styles(getTheme("tech-blue"));
+
+    expect(styles.section).toContain("line-height:1.75");
+    expect(styles.h2).toContain("border-bottom:1px solid #1769aa");
+    expect(styles.blockquote).toContain("border-left:3px solid #1769aa");
+    expect(styles.th).toContain("background:#ffffff");
+    expect(styles.th).toContain("border:1px solid #d9dee7");
+  });
+
+  it.each(LAYOUTS.filter((layout) => !["none", "minimal"].includes(layout.id)))("$name 使用紧凑正文组件间距", (layout) => {
     const styles = layout.styles(getTheme("tech-blue"));
 
     expect(styles.p).toContain("margin:.65em 0");
