@@ -75,9 +75,12 @@ function inlineWechatStyles(html: string, styles: LayoutStyles): string {
   for (const [tag, key] of plainTags) {
     output = output.replaceAll(`<${tag}>`, `<${tag} style="${styles[key]}">`);
   }
-  return output
+  output = output
     .replaceAll("<a ", `<a style="${styles.a}" `)
     .replaceAll("<img ", `<img style="${styles.img}" `);
+  return output.replace(/(<blockquote style="[^"]*">[\s\S]*?<\/blockquote>)/g, (quote) =>
+    quote.replaceAll(`style="${styles.p}"`, `style="${styles.p}margin:0;"`)
+  );
 }
 
 const codeLineStyle = "display:block;position:relative;min-height:1.5em;";

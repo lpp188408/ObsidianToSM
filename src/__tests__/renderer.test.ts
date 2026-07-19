@@ -31,6 +31,16 @@ describe("renderMarkdownToWechatHtml", () => {
     expect(html).not.toContain("<ol");
   });
 
+  it("移除引用块内部段落的首尾边距", () => {
+    const html = renderMarkdownToWechatHtml("> 引用内容", {
+      customCss: "",
+      enableLineNumbers: false
+    });
+
+    expect(html).toContain('<blockquote style=');
+    expect(html).toContain('margin:.65em 0;color:#202124;margin:0;');
+  });
+
   const sample = `# 主标题
 
 ## 二级标题

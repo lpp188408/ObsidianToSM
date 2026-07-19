@@ -28,10 +28,18 @@ describe("getLayout", () => {
     const styles = getLayout("minimal").styles(getTheme("tech-blue"));
 
     expect(styles.section).toContain("line-height:1.75");
-    expect(styles.h2).toContain("border-bottom:1px solid #1769aa");
-    expect(styles.blockquote).toContain("border-left:3px solid #1769aa");
-    expect(styles.th).toContain("background:#ffffff");
-    expect(styles.th).toContain("border:1px solid #d9dee7");
+    expect(styles.h1).toContain("font-size:1.8em");
+    expect(styles.h2).toContain("font-size:1.45em");
+    expect(styles.p).toContain("margin:0 0 1em");
+    expect(styles.th).toContain("border:1px solid rgb(15 23 42 / 14%)");
+    expect(styles.th).toContain("background:rgb(255 255 255 / 48%)");
+  });
+
+  it.each(LAYOUTS)("$name 的引用块使用更小、更紧凑的文字", (layout) => {
+    const styles = layout.styles(getTheme("tech-blue"));
+
+    expect(styles.blockquote).toContain("font-size:15px");
+    expect(styles.blockquote).toContain("line-height:1.65");
   });
 
   it.each(LAYOUTS.filter((layout) => !["none", "minimal"].includes(layout.id)))("$name 使用紧凑正文组件间距", (layout) => {
