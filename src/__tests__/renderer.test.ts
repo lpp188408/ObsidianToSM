@@ -31,6 +31,26 @@ describe("renderMarkdownToWechatHtml", () => {
     expect(html).not.toContain("<ol");
   });
 
+  it("松散编号列表的编号与正文保持同行", () => {
+    const html = renderMarkdownToWechatHtml("1. 第一项\n\n2. 第二项", {
+      customCss: "",
+      enableLineNumbers: false
+    });
+
+    expect(html).toContain(">1.</span>第一项");
+    expect(html).not.toContain(">1.</span><p");
+  });
+
+  it("将表格首列固定为四分之一宽度", () => {
+    const html = renderMarkdownToWechatHtml("| 项目 | 内容 |\n| --- | --- |\n| 书名 | 示例 |", {
+      customCss: "",
+      enableLineNumbers: false
+    });
+
+    expect(html).toContain("table-layout:fixed");
+    expect(html.match(/width:25%/g)).toHaveLength(2);
+  });
+
   it("移除引用块内部段落的首尾边距", () => {
     const html = renderMarkdownToWechatHtml("> 引用内容", {
       customCss: "",

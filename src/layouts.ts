@@ -48,9 +48,9 @@ function baseStyles(theme: WechatTheme): LayoutStyles {
     inlineCode: `padding:.12em .3em;background:${theme.codeBackground};color:${theme.heading};font-family:'SFMono-Regular',Consolas,monospace;font-size:.9em;`,
     pre: `margin:.8em 0;padding:10px;overflow:auto;background:${theme.codeBackground};border-radius:6px;`,
     code: `font-family:'SFMono-Regular',Consolas,'Liberation Mono',monospace;font-size:14px;color:${theme.body};`,
-    table: "width:100%;margin:.8em 0;border-collapse:collapse;font-size:.92em;line-height:1.55;",
-    th: `padding:.42em .55em;border:1px solid ${theme.accent};background:${theme.quoteBackground};color:${theme.heading};text-align:left;font-weight:700;`,
-    td: `padding:.42em .55em;border:1px solid ${theme.accent};color:${theme.body};vertical-align:top;`
+    table: "width:100%;margin:.8em 0;border-collapse:collapse;table-layout:fixed;font-size:.92em;line-height:1.45;",
+    th: `padding:.3em .45em;border:1px solid ${theme.accent};background:${theme.quoteBackground};color:${theme.heading};text-align:left;font-weight:700;`,
+    td: `padding:.3em .45em;border:1px solid ${theme.accent};color:${theme.body};vertical-align:top;`
   };
 }
 
@@ -79,7 +79,7 @@ export const LAYOUTS: readonly WechatLayout[] = [
       h2: `font-size:20px;line-height:1.5;margin:1.2em 0 .55em;padding:.25em .6em;border-left:5px solid ${theme.accent};background:${theme.quoteBackground};font-weight:700;color:${theme.heading};`,
       h3: `font-size:18px;margin:1.05em 0 .45em;padding-bottom:.25em;border-bottom:1px solid ${theme.accent};font-weight:700;color:${theme.heading};`,
       blockquote: `font-size:15px;line-height:1.65;margin:.5em 0;padding:.3em .65em;border:1px solid ${theme.accent};border-left:5px solid ${theme.accent};background:${theme.quoteBackground};color:${theme.body};`,
-      th: `padding:.42em .55em;border:1px solid ${theme.accent};background:${theme.accent};color:#ffffff;text-align:left;font-weight:700;`
+      th: `padding:.3em .45em;border:1px solid ${theme.accent};background:${theme.accent};color:#ffffff;text-align:left;font-weight:700;`
     })
   },
   {
@@ -125,9 +125,9 @@ export const LAYOUTS: readonly WechatLayout[] = [
       ol: "margin:0 0 1em;padding-left:1.5em;",
       li: `margin:.12em 0;color:${theme.body};`,
       hr: "margin:1.5em 0;border:0;border-top:1px solid rgb(15 23 42 / 14%);",
-      table: "width:100%;margin:0 0 1em;border-collapse:collapse;table-layout:fixed;font-size:1em;line-height:1.75;",
-      th: `padding:.5em .65em;border:1px solid rgb(15 23 42 / 14%);background:rgb(255 255 255 / 48%);color:${theme.heading};text-align:left;font-weight:650;vertical-align:top;word-break:break-word;`,
-      td: `padding:.5em .65em;border:1px solid rgb(15 23 42 / 14%);color:${theme.body};text-align:left;vertical-align:top;word-break:break-word;`
+      table: "width:100%;margin:0 0 1em;border-collapse:collapse;table-layout:fixed;font-size:1em;line-height:1.45;",
+      th: `padding:.3em .45em;border:1px solid rgb(15 23 42 / 14%);background:rgb(255 255 255 / 48%);color:${theme.heading};text-align:left;font-weight:650;vertical-align:top;word-break:break-word;`,
+      td: `padding:.3em .45em;border:1px solid rgb(15 23 42 / 14%);color:${theme.body};text-align:left;vertical-align:top;word-break:break-word;`
     })
   }
 ];

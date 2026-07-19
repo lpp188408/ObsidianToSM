@@ -22,7 +22,7 @@ export function renderMarkdownToWechatHtml(markdown: string, options: RenderOpti
         const firstNumber = typeof token.start === "number" ? token.start : 1;
         return token.items.map((item, index) => {
           const marker = token.ordered ? `${firstNumber + index}.` : "•";
-          const content = this.parser.parse(item.tokens, item.loose);
+          const content = this.parser.parse(item.tokens, false);
           return `<section class="obsidian-to-sm-list-item" style="${listItemStyle}"><span style="${listMarkerStyle}">${marker}</span>${content}</section>`;
         }).join("");
       },
@@ -78,6 +78,7 @@ function inlineWechatStyles(html: string, styles: LayoutStyles): string {
   output = output
     .replaceAll("<a ", `<a style="${styles.a}" `)
     .replaceAll("<img ", `<img style="${styles.img}" `);
+  output = output.replace(/(<tr>\s*<(?:th|td) style="[^"]*)"/g, "$1width:25%;\"");
   return output.replace(/(<blockquote style="[^"]*">[\s\S]*?<\/blockquote>)/g, (quote) =>
     quote.replaceAll(`style="${styles.p}"`, `style="${styles.p}margin:0;"`)
   );

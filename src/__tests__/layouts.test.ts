@@ -42,6 +42,15 @@ describe("getLayout", () => {
     expect(styles.blockquote).toContain("line-height:1.65");
   });
 
+  it.each(LAYOUTS)("$name 的表格使用紧凑行距", (layout) => {
+    const styles = layout.styles(getTheme("tech-blue"));
+
+    expect(styles.table).toContain("table-layout:fixed");
+    expect(styles.table).toContain("line-height:1.45");
+    expect(styles.th).toContain("padding:.3em .45em");
+    expect(styles.td).toContain("padding:.3em .45em");
+  });
+
   it.each(LAYOUTS.filter((layout) => !["none", "minimal"].includes(layout.id)))("$name 使用紧凑正文组件间距", (layout) => {
     const styles = layout.styles(getTheme("tech-blue"));
 
@@ -50,7 +59,7 @@ describe("getLayout", () => {
     expect(styles.ol).toContain("margin:.65em 0");
     expect(styles.li).toContain("margin:.15em 0");
     expect(styles.table).toContain("margin:.8em 0");
-    expect(styles.th).toContain("padding:.42em .55em");
-    expect(styles.td).toContain("padding:.42em .55em");
+    expect(styles.th).toContain("padding:.3em .45em");
+    expect(styles.td).toContain("padding:.3em .45em");
   });
 });
