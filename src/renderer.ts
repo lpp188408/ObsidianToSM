@@ -50,7 +50,7 @@ function addLineNumbers(highlighted: string): string {
       (line, index) =>
         `<span class="code-line" data-line="${index + 1}" style="${codeLineStyle}"><span style="${lineNumberStyle}">${index + 1}</span>${line || " "}</span>`
     )
-    .join("\n");
+    .join("");
 }
 
 function inlineWechatStyles(html: string, styles: LayoutStyles): string {

@@ -15,6 +15,7 @@ describe("renderMarkdownToWechatHtml", () => {
     expect(html).toContain("hljs");
     expect(html).toContain('data-line="1"');
     expect(html).not.toContain(".code-line::before");
+    expect(html).not.toContain("</span>\n<span class=\"code-line\"");
   });
 
   it("将列表输出为兼容微信公众号的项目段落", () => {
