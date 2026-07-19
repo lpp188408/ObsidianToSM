@@ -86,14 +86,19 @@
 .obsidian-to-sm-top-panel {
   border-bottom: 1px solid var(--background-modifier-border);
   display: grid;
-  gap: 10px;
+  column-gap: 10px;
+  grid-template-areas:
+    "cover fields"
+    ". toolbar";
   grid-template-columns: minmax(0, 54%) minmax(0, 1fr);
+  grid-template-rows: auto auto;
   padding: 8px;
 }
 
-.obsidian-to-sm-settings-panel {
-  display: flex;
-  flex-direction: column;
+.obsidian-to-sm-settings-fields {
+  display: grid;
+  grid-area: fields;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
   min-width: 0;
 }
 
@@ -112,6 +117,7 @@
   border-radius: 4px;
   color: var(--text-muted);
   display: flex;
+  grid-area: cover;
   aspect-ratio: 2.35 / 1;
   height: auto;
   justify-content: center;
@@ -141,12 +147,18 @@
 .obsidian-to-sm-toolbar {
   align-items: center;
   display: flex;
-  flex-wrap: wrap;
   gap: 4px;
-  justify-content: flex-end;
-  margin-top: auto;
+  grid-area: toolbar;
+  justify-content: space-between;
   min-height: 38px;
   padding: 6px 0 0;
+}
+
+.obsidian-to-sm-commands {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
 }
 
 .obsidian-to-sm-option-row {
@@ -226,7 +238,7 @@
 
 .obsidian-to-sm-preview-modes {
   display: inline-flex;
-  justify-self: end;
+  flex: 0 0 auto;
 }
 
 .obsidian-to-sm-preview-mode {
