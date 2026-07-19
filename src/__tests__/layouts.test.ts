@@ -52,6 +52,8 @@ describe("getLayout", () => {
     expect(styles.h1).toContain("font-size:22px");
     expect(styles.h2).toContain("font-size:18px");
     expect(styles.h3).toContain("font-size:16px");
+    expect(styles.h2).toContain("margin:1.35em 0 .45em");
+    expect(styles.h3).toContain("margin:1.15em 0 .4em");
     expect(styles.blockquote).toContain("font-size:14px");
     expect(styles.blockquote).toContain("line-height:1.6");
   });

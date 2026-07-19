@@ -33,8 +33,8 @@ function baseStyles(theme: WechatTheme): LayoutStyles {
   return {
     section: `font-family:Optima,'PingFang SC','Microsoft YaHei',serif;font-size:15px;line-height:1.7;color:${theme.body};`,
     h1: `font-size:22px;line-height:1.4;text-align:center;margin:.85em 0 .55em;font-weight:700;color:${theme.heading};`,
-    h2: `font-size:18px;line-height:1.5;border-bottom:2px solid ${theme.accent};padding-bottom:3px;margin:1.1em 0 .45em;font-weight:700;color:${theme.heading};`,
-    h3: `font-size:16px;line-height:1.5;margin:.95em 0 .4em;font-weight:700;color:${theme.heading};`,
+    h2: `font-size:18px;line-height:1.5;border-bottom:2px solid ${theme.accent};padding-bottom:3px;margin:1.35em 0 .45em;font-weight:700;color:${theme.heading};`,
+    h3: `font-size:16px;line-height:1.5;margin:1.15em 0 .4em;font-weight:700;color:${theme.heading};`,
     p: `margin:.55em 0;color:${theme.body};`,
     blockquote: `font-size:14px;line-height:1.6;border-left:4px solid ${theme.accent};background:${theme.quoteBackground};margin:.45em 0;padding:.28em .65em;color:${theme.body};`,
     ul: "margin:.55em 0;padding-left:1.35em;",
@@ -63,8 +63,8 @@ export const LAYOUTS: readonly WechatLayout[] = [
       ...baseStyles(theme),
       section: `font-family:Optima,'Songti SC','PingFang SC',serif;font-size:15px;line-height:1.7;color:${theme.body};`,
       h1: `font-family:Georgia,'Songti SC',serif;font-size:22px;line-height:1.35;text-align:center;margin:.9em 0 .55em;padding-bottom:.4em;border-bottom:3px solid ${theme.accent};font-weight:700;color:${theme.heading};`,
-      h2: `font-family:Georgia,'Songti SC',serif;font-size:18px;line-height:1.5;text-align:center;margin:1.15em 0 .45em;padding-bottom:.3em;border-bottom:1px solid ${theme.accent};font-weight:700;color:${theme.heading};`,
-      h3: `font-family:Georgia,'Songti SC',serif;font-size:16px;margin:1em 0 .4em;padding-left:.55em;border-left:3px solid ${theme.accent};font-weight:700;color:${theme.heading};`,
+      h2: `font-family:Georgia,'Songti SC',serif;font-size:18px;line-height:1.5;text-align:center;margin:1.35em 0 .45em;padding-bottom:.3em;border-bottom:1px solid ${theme.accent};font-weight:700;color:${theme.heading};`,
+      h3: `font-family:Georgia,'Songti SC',serif;font-size:16px;margin:1.15em 0 .4em;padding-left:.55em;border-left:3px solid ${theme.accent};font-weight:700;color:${theme.heading};`,
       blockquote: `font-size:14px;line-height:1.6;margin:.45em 0;padding:.28em .65em;border:0;background:${theme.quoteBackground};color:${theme.body};font-family:Georgia,'Songti SC',serif;`,
       hr: `width:3em;margin:1.4em auto;border:0;border-top:3px solid ${theme.accent};`
     })
@@ -76,8 +76,8 @@ export const LAYOUTS: readonly WechatLayout[] = [
       ...baseStyles(theme),
       section: `font-family:Optima,'PingFang SC','Microsoft YaHei',sans-serif;font-size:15px;line-height:1.7;color:${theme.body};`,
       h1: `font-size:22px;line-height:1.35;text-align:left;margin:.85em 0 .55em;padding-bottom:.35em;border-bottom:3px solid ${theme.accent};font-weight:750;color:${theme.heading};`,
-      h2: `font-size:18px;line-height:1.5;margin:1.1em 0 .45em;padding:.22em .55em;border-left:5px solid ${theme.accent};background:${theme.quoteBackground};font-weight:700;color:${theme.heading};`,
-      h3: `font-size:16px;margin:.95em 0 .4em;padding-bottom:.2em;border-bottom:1px solid ${theme.accent};font-weight:700;color:${theme.heading};`,
+      h2: `font-size:18px;line-height:1.5;margin:1.35em 0 .45em;padding:.22em .55em;border-left:5px solid ${theme.accent};background:${theme.quoteBackground};font-weight:700;color:${theme.heading};`,
+      h3: `font-size:16px;margin:1.15em 0 .4em;padding-bottom:.2em;border-bottom:1px solid ${theme.accent};font-weight:700;color:${theme.heading};`,
       blockquote: `font-size:14px;line-height:1.6;margin:.45em 0;padding:.28em .65em;border:0.5px solid ${theme.accent};background:${theme.quoteBackground};color:${theme.body};`,
       th: `padding:.25em .4em;border:1px solid ${theme.accent};background:${theme.accent};color:#ffffff;text-align:left;font-weight:700;`
     })
@@ -89,8 +89,8 @@ export const LAYOUTS: readonly WechatLayout[] = [
       ...baseStyles(theme),
       section: `font-family:Georgia,'Songti SC','PingFang SC',serif;font-size:15px;line-height:1.7;color:${theme.body};background:#fffdf8;padding:.2em .45em;`,
       h1: `font-family:Georgia,'Songti SC',serif;font-size:22px;line-height:1.4;text-align:left;margin:.85em 0 .55em;font-weight:700;color:${theme.heading};`,
-      h2: `font-family:Georgia,'Songti SC',serif;font-size:18px;line-height:1.5;margin:1.1em 0 .45em;padding-left:.55em;border-left:5px solid ${theme.accent};font-weight:700;color:${theme.heading};`,
-      h3: `font-family:Georgia,'Songti SC',serif;font-size:16px;margin:.95em 0 .4em;color:${theme.heading};`,
+      h2: `font-family:Georgia,'Songti SC',serif;font-size:18px;line-height:1.5;margin:1.35em 0 .45em;padding-left:.55em;border-left:5px solid ${theme.accent};font-weight:700;color:${theme.heading};`,
+      h3: `font-family:Georgia,'Songti SC',serif;font-size:16px;margin:1.15em 0 .4em;color:${theme.heading};`,
       blockquote: `font-size:14px;line-height:1.6;margin:.45em 0;padding:.28em .65em;border:0;background:${theme.quoteBackground};color:${theme.body};font-family:Georgia,'Songti SC',serif;`,
       li: `margin:.12em 0;padding-left:.1em;color:${theme.body};`
     })
@@ -102,8 +102,8 @@ export const LAYOUTS: readonly WechatLayout[] = [
       ...baseStyles(theme),
       section: `font-family:Optima,'PingFang SC','Microsoft YaHei',sans-serif;font-size:15px;line-height:1.7;color:${theme.body};`,
       h1: `font-size:22px;line-height:1.35;text-align:left;margin:.85em 0 .55em;padding-bottom:.35em;border-bottom:1px solid ${theme.accent};font-weight:750;color:${theme.heading};`,
-      h2: `font-size:18px;line-height:1.5;margin:1.1em 0 .45em;padding-left:.5em;border-left:4px solid ${theme.accent};font-weight:700;color:${theme.heading};`,
-      h3: `font-size:16px;margin:.95em 0 .4em;color:${theme.accent};font-weight:700;`,
+      h2: `font-size:18px;line-height:1.5;margin:1.35em 0 .45em;padding-left:.5em;border-left:4px solid ${theme.accent};font-weight:700;color:${theme.heading};`,
+      h3: `font-size:16px;margin:1.15em 0 .4em;color:${theme.accent};font-weight:700;`,
       blockquote: `font-size:14px;line-height:1.6;margin:.45em 0;padding:.28em .65em;border:0;border-left:4px solid ${theme.accent};background:${theme.quoteBackground};color:${theme.body};`,
       inlineCode: `padding:.15em .35em;background:${theme.codeBackground};color:${theme.accent};font-family:'SFMono-Regular',Consolas,monospace;font-size:.9em;`,
       pre: "margin:.8em 0;padding:10px;overflow:auto;background:#101820;border-radius:4px;color:#d7e2ea;",
@@ -117,8 +117,8 @@ export const LAYOUTS: readonly WechatLayout[] = [
       ...baseStyles(theme),
       section: `font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;font-size:15px;line-height:1.7;color:${theme.body};`,
       h1: `font-size:22px;line-height:1.4;text-align:left;margin:1em 0 .55em;font-weight:700;color:${theme.heading};`,
-      h2: `font-size:18px;line-height:1.5;text-align:left;margin:1em 0 .45em;font-weight:700;color:${theme.heading};`,
-      h3: `font-size:16px;line-height:1.5;text-align:left;margin:.9em 0 .4em;font-weight:700;color:${theme.heading};`,
+      h2: `font-size:18px;line-height:1.5;text-align:left;margin:1.35em 0 .45em;font-weight:700;color:${theme.heading};`,
+      h3: `font-size:16px;line-height:1.5;text-align:left;margin:1.15em 0 .4em;font-weight:700;color:${theme.heading};`,
       p: `margin:0 0 .55em;color:${theme.body};`,
       blockquote: "font-size:14px;line-height:1.6;margin:0 0 .65em;padding:.28em .65em;border:0;border-left:3px solid #9ca3af;background:#f3f4f6;color:#4b5563;",
       ul: "margin:0 0 .55em;padding-left:1.5em;",
