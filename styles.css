@@ -79,7 +79,7 @@
 .obsidian-to-sm-settings-fields {
   background: var(--background-secondary);
   border: 1px solid var(--background-modifier-border);
-  border-radius: 6px;
+  border-radius: 8px;
   display: grid;
   grid-area: fields;
   grid-row: 1 / 3;
@@ -102,7 +102,7 @@
   align-items: center;
   background: transparent;
   border: 1px dashed var(--background-modifier-border);
-  border-radius: 6px;
+  border-radius: 8px;
   color: var(--text-muted);
   display: flex;
   grid-area: cover;
@@ -139,7 +139,7 @@
   align-items: center;
   background: var(--background-secondary);
   border: 1px solid var(--background-modifier-border);
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex;
   grid-area: toolbar;
   height: 38px;
@@ -263,12 +263,12 @@
 }
 
 .obsidian-to-sm-preview-mode:first-child {
-  border-radius: 4px 0 0 4px;
+  border-radius: 6px 0 0 6px;
 }
 
 .obsidian-to-sm-preview-mode:last-child {
   border-left: 0;
-  border-radius: 0 4px 4px 0;
+  border-radius: 0 6px 6px 0;
 }
 
 .obsidian-to-sm-preview-mode.is-active {
@@ -396,7 +396,7 @@
   align-items: center;
   background: var(--background-secondary);
   border: 1px solid var(--background-modifier-border);
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex;
   min-height: 38px;
   min-width: 0;
@@ -411,7 +411,7 @@
   align-items: center;
   background: var(--background-secondary);
   border: 1px solid var(--background-modifier-border);
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex;
   height: 38px;
   gap: 2px;
