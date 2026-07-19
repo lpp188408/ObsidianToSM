@@ -1,6 +1,7 @@
 import { App, Notice, PluginSettingTab, setIcon, Setting } from "obsidian";
 import type { WechatAccount } from "./accounts";
 import type { StoredCover } from "./cover-store";
+import type { CoverCrop } from "./cover-crop";
 import type ObsidianToSmPlugin from "./main";
 import type { PreviewMode } from "./sidebar-controller";
 import { DEFAULT_STICKER_SETTINGS, type StickerSettings } from "./sticker";
@@ -17,6 +18,7 @@ export interface PluginSettings {
   previewMode: PreviewMode;
   thumbMediaId: string;
   localCovers: Record<string, StoredCover>;
+  coverCrops: Record<string, CoverCrop>;
   stickerSettings: StickerSettings;
 }
 
@@ -32,6 +34,7 @@ export const DEFAULT_SETTINGS: PluginSettings = {
   previewMode: "desktop",
   thumbMediaId: "",
   localCovers: {},
+  coverCrops: {},
   stickerSettings: DEFAULT_STICKER_SETTINGS
 };
 

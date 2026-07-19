@@ -1,6 +1,7 @@
 import { Notice, Plugin, requestUrl } from "obsidian";
 import { parseAccountRows } from "./accounts";
 import { CoverStore } from "./cover-store";
+import { cropCoverFile, DEFAULT_COVER_CROP, normalizeCoverCrop, type CoverCrop } from "./cover-crop";
 import { MacosKeychainStore } from "./macos-keychain";
 import { resolveEmbeds } from "./assets";
 import { copyHtmlToClipboard } from "./clipboard";
@@ -31,6 +32,7 @@ export default class ObsidianToSmPlugin extends Plugin {
       accounts: () => this.settings.accounts, selectedAccountId: () => this.settings.selectedAccountId,
       setSelectedAccount: async (id) => { this.settings.selectedAccountId = id; await this.saveSettings(); },
       addCover: async (file) => this.chooseCover(file),
+      saveCoverCrop: async (crop) => this.saveCoverCrop(crop),
       copy: async (themeId, layoutId) => { const note = await this.prepareActiveNote(themeId, layoutId); if (note) await copyHtmlToClipboard(note.html, note.plainText); },
       exportPdf: async (themeId, layoutId) => this.exportActiveNotePdf(themeId, layoutId),
       createDraft: async (themeId, layoutId) => this.publishActiveNote(themeId, layoutId),
@@ -149,7 +151,13 @@ export default class ObsidianToSmPlugin extends Plugin {
       load: async (themeId, layoutId) => {
         const note = await this.prepareActiveNote(themeId, layoutId);
         if (!note) return { html: "", plainText: "" };
-        return { html: note.html, plainText: note.plainText, coverDataUrl: note.coverDataUrl };
+        return {
+          html: note.html,
+          plainText: note.plainText,
+          coverDataUrl: note.coverDataUrl,
+          coverSourceDataUrl: note.coverSourceDataUrl,
+          coverCrop: note.coverCrop
+        };
       }
     });
   }
@@ -171,11 +179,21 @@ export default class ObsidianToSmPlugin extends Plugin {
     if (!accepted.has(file.mimeType)) throw new Error("封面仅支持 JPG、PNG、GIF 或 WebP 图片");
     const stored = await this.coverStore().save(note.path, file);
     this.settings.localCovers[note.path] = stored;
+    this.settings.coverCrops[note.path] = { ...DEFAULT_COVER_CROP };
     await this.saveSettings();
     new Notice(`已设置本地封面：${file.filename}`);
   }
 
-  private async prepareActiveNote(themeId = this.settings.themeId, layoutId = this.settings.layoutId): Promise<{ html: string; plainText: string; coverDataUrl?: string; draftConfig: DraftConfig } | null> {
+  private async saveCoverCrop(crop: CoverCrop): Promise<void> {
+    const note = this.app.workspace.getActiveFile();
+    if (!note) throw new Error("没有打开的笔记");
+    if (!this.settings.localCovers[note.path]) throw new Error("请先选择本地封面");
+    this.settings.coverCrops[note.path] = normalizeCoverCrop(crop);
+    await this.saveSettings();
+    new Notice("封面裁剪已保存");
+  }
+
+  private async prepareActiveNote(themeId = this.settings.themeId, layoutId = this.settings.layoutId): Promise<{ html: string; plainText: string; coverDataUrl?: string; coverSourceDataUrl?: string; coverCrop?: CoverCrop; draftConfig: DraftConfig } | null> {
     const file = this.app.workspace.getActiveFile();
     if (!file) {
       new Notice("没有打开的笔记");
@@ -197,12 +215,16 @@ export default class ObsidianToSmPlugin extends Plugin {
     const storedCover = this.settings.localCovers[file.path];
     const localCover = storedCover ? await this.coverStore().read(storedCover) : undefined;
     const legacyCover = !localCover && metadata.cover ? await this.resolveAsset(metadata.cover, file.path) : undefined;
-    const cover = localCover ?? legacyCover?.uploadFile;
+    const coverCrop = localCover ? normalizeCoverCrop(this.settings.coverCrops[file.path]) : undefined;
+    const croppedLocalCover = localCover ? await cropCoverFile(localCover, coverCrop) : undefined;
+    const cover = croppedLocalCover ?? legacyCover?.uploadFile;
     const account = this.settings.accounts.find((item) => item.id === this.settings.selectedAccountId);
     return {
       html,
       plainText: body,
-      coverDataUrl: localCover ? uploadFileToDataUrl(localCover) : legacyCover?.dataUrl,
+      coverDataUrl: croppedLocalCover ? uploadFileToDataUrl(croppedLocalCover) : legacyCover?.dataUrl,
+      coverSourceDataUrl: localCover ? uploadFileToDataUrl(localCover) : legacyCover?.dataUrl,
+      coverCrop,
       draftConfig: {
         appId: account?.appId ?? "",
         appSecret: account ? await this.credentialStore().read(account.id) : "",

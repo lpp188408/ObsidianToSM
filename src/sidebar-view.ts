@@ -5,6 +5,7 @@ import { buildStickerPdfDocument, printPdfDocument } from "./pdf";
 import { LAYOUTS } from "./layouts";
 import { THEMES } from "./themes";
 import { SidebarController } from "./sidebar-controller";
+import { DEFAULT_COVER_CROP, normalizeCoverCrop, type CoverCrop } from "./cover-crop";
 import type { WechatAccount } from "./accounts";
 import type { WechatUploadFile } from "./wechat";
 import {
@@ -25,6 +26,7 @@ export interface WorkbenchActions {
   selectedAccountId(): string;
   setSelectedAccount(id: string): Promise<void>;
   addCover(file: WechatUploadFile): Promise<void>;
+  saveCoverCrop(crop: CoverCrop): Promise<void>;
   copy(themeId: string, layoutId: string): Promise<void>;
   exportPdf(themeId: string, layoutId: string): Promise<void>;
   createDraft(themeId: string, layoutId: string): Promise<void>;
@@ -50,6 +52,7 @@ export class WechatWorkbenchView extends ItemView {
   private stickerSaveQueue: Promise<void> = Promise.resolve();
   private stickerRenderTimer: number | null = null;
   private confirmStickerReset = false;
+  private coverEditor: { sourceDataUrl: string; crop: CoverCrop } | null = null;
 
   constructor(leaf: WorkspaceLeaf, private readonly controller: SidebarController, private readonly actions: WorkbenchActions) {
     super(leaf);
@@ -117,13 +120,7 @@ export class WechatWorkbenchView extends ItemView {
   private renderWechat(root: HTMLElement): void {
     const state = this.controller.getState();
     const topPanel = root.createDiv({ cls: "obsidian-to-sm-top-panel" });
-    const cover = topPanel.createEl("button", {
-      cls: "obsidian-to-sm-cover clickable-icon",
-      attr: { "aria-label": "添加或更换封面", "data-tooltip-position": "bottom" }
-    });
-    if (state.coverDataUrl) cover.createEl("img", { attr: { src: state.coverDataUrl, alt: "文章封面" } });
-    else setIcon(cover, "image-plus");
-    cover.addEventListener("click", () => this.chooseLocalCover());
+    this.renderCover(topPanel);
 
     const settingsFields = topPanel.createDiv({ cls: "obsidian-to-sm-settings-fields" });
     const accountRow = settingsFields.createDiv({ cls: "obsidian-to-sm-account-row" });
@@ -179,6 +176,89 @@ export class WechatWorkbenchView extends ItemView {
 
     const preview = root.createDiv({ cls: `obsidian-to-sm-sidebar-preview is-${state.previewMode}` });
     preview.innerHTML = state.html || "<p>打开笔记后点击刷新。</p>";
+  }
+
+  private renderCover(topPanel: HTMLElement): void {
+    const state = this.controller.getState();
+    const canEdit = Boolean(state.coverSourceDataUrl && state.coverCrop);
+    if (this.coverEditor && canEdit) {
+      const editor = topPanel.createDiv({ cls: "obsidian-to-sm-cover obsidian-to-sm-cover-editor" });
+      const image = editor.createEl("img", { attr: { src: this.coverEditor.sourceDataUrl, alt: "正在裁剪的文章封面", draggable: "false" } });
+      this.applyCoverCropPreview(image, this.coverEditor.crop);
+      this.bindCoverDragging(editor, image);
+
+      const controls = editor.createDiv({ cls: "obsidian-to-sm-cover-editor-controls" });
+      const zoom = controls.createEl("input", { type: "range", cls: "obsidian-to-sm-cover-zoom", attr: { min: "1", max: "3", step: "0.01", "aria-label": "缩放封面" } });
+      zoom.value = String(this.coverEditor.crop.scale);
+      zoom.addEventListener("input", () => {
+        if (!this.coverEditor) return;
+        this.coverEditor.crop = normalizeCoverCrop({ ...this.coverEditor.crop, scale: Number(zoom.value) });
+        this.applyCoverCropPreview(image, this.coverEditor.crop);
+      });
+      this.iconButton(controls, "crosshair", "封面居中", () => {
+        if (!this.coverEditor) return;
+        this.coverEditor.crop = { ...this.coverEditor.crop, offsetX: 0, offsetY: 0 };
+        this.applyCoverCropPreview(image, this.coverEditor.crop);
+      }, "obsidian-to-sm-cover-control");
+      this.iconButton(controls, "rotate-ccw", "恢复默认裁剪", () => {
+        if (!this.coverEditor) return;
+        this.coverEditor.crop = { ...DEFAULT_COVER_CROP };
+        zoom.value = String(DEFAULT_COVER_CROP.scale);
+        this.applyCoverCropPreview(image, this.coverEditor.crop);
+      }, "obsidian-to-sm-cover-control");
+      this.iconButton(controls, "check", "确认封面裁剪", () => {
+        if (!this.coverEditor) return;
+        const crop = this.coverEditor.crop;
+        this.coverEditor = null;
+        void this.run(() => this.actions.saveCoverCrop(crop), true);
+      }, "obsidian-to-sm-cover-control is-confirm");
+      return;
+    }
+
+    const cover = topPanel.createEl("button", {
+      cls: "obsidian-to-sm-cover clickable-icon",
+      attr: { "aria-label": state.coverDataUrl ? "调整或更换封面" : "添加封面", "data-tooltip-position": "bottom" }
+    });
+    if (state.coverDataUrl) cover.createEl("img", { attr: { src: state.coverDataUrl, alt: "文章封面" } });
+    else setIcon(cover, "image-plus");
+    cover.addEventListener("click", () => {
+      if (state.coverSourceDataUrl && state.coverCrop) {
+        this.coverEditor = { sourceDataUrl: state.coverSourceDataUrl, crop: normalizeCoverCrop(state.coverCrop) };
+        this.render();
+      } else this.chooseLocalCover();
+    });
+  }
+
+  private bindCoverDragging(frame: HTMLElement, image: HTMLImageElement): void {
+    frame.addEventListener("pointerdown", (event) => {
+      if (!this.coverEditor || event.target instanceof HTMLInputElement || event.target instanceof HTMLButtonElement) return;
+      const start = { x: event.clientX, y: event.clientY, crop: { ...this.coverEditor.crop } };
+      frame.setPointerCapture(event.pointerId);
+      const move = (moveEvent: PointerEvent) => {
+        if (!this.coverEditor) return;
+        const horizontalRange = Math.max(28, frame.clientWidth * (start.crop.scale - 1) / 2);
+        const verticalRange = Math.max(20, frame.clientHeight * (start.crop.scale - 1) / 2);
+        this.coverEditor.crop = normalizeCoverCrop({
+          ...start.crop,
+          offsetX: start.crop.offsetX + (moveEvent.clientX - start.x) / horizontalRange,
+          offsetY: start.crop.offsetY + (moveEvent.clientY - start.y) / verticalRange
+        });
+        this.applyCoverCropPreview(image, this.coverEditor.crop);
+      };
+      const end = () => {
+        frame.removeEventListener("pointermove", move);
+        frame.removeEventListener("pointerup", end);
+        frame.removeEventListener("pointercancel", end);
+      };
+      frame.addEventListener("pointermove", move);
+      frame.addEventListener("pointerup", end);
+      frame.addEventListener("pointercancel", end);
+    });
+  }
+
+  private applyCoverCropPreview(image: HTMLImageElement, crop: CoverCrop): void {
+    const normalized = normalizeCoverCrop(crop);
+    image.style.transform = `translate(${normalized.offsetX * 50}%, ${normalized.offsetY * 50}%) scale(${normalized.scale})`;
   }
 
   private renderSticker(root: HTMLElement): void {

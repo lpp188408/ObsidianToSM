@@ -132,7 +132,68 @@
 .obsidian-to-sm-cover img {
   height: 100%;
   object-fit: cover;
+  transform-origin: center;
+  transition: transform 80ms linear;
   width: 100%;
+}
+
+.obsidian-to-sm-cover-editor {
+  background: #17191d;
+  border-style: solid;
+  cursor: grab;
+  position: relative;
+  touch-action: none;
+}
+
+.obsidian-to-sm-cover-editor:active {
+  cursor: grabbing;
+}
+
+.obsidian-to-sm-cover-editor::after {
+  border: 1px solid rgb(255 255 255 / 68%);
+  border-radius: 5px;
+  content: "";
+  inset: 5px;
+  pointer-events: none;
+  position: absolute;
+}
+
+.obsidian-to-sm-cover-editor-controls {
+  align-items: center;
+  background: rgb(24 25 28 / 72%);
+  border-radius: 5px;
+  bottom: 8px;
+  display: flex;
+  gap: 3px;
+  left: 8px;
+  padding: 3px 4px;
+  position: absolute;
+  right: 8px;
+  z-index: 1;
+}
+
+.obsidian-to-sm-cover-zoom {
+  accent-color: var(--interactive-accent);
+  cursor: ew-resize;
+  flex: 1;
+  height: 18px;
+  margin: 0 3px;
+  min-width: 42px;
+}
+
+.obsidian-to-sm-cover-control {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 4px;
+  color: #fff !important;
+  height: 24px;
+  padding: 3px !important;
+  width: 24px;
+}
+
+.obsidian-to-sm-cover-control:hover,
+.obsidian-to-sm-cover-control.is-confirm {
+  background: rgb(255 255 255 / 20%) !important;
 }
 
 .obsidian-to-sm-account {

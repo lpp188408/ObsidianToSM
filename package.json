@@ -1,6 +1,6 @@
 {
   "name": "obsidian-to-sm",
-  "version": "0.7.29",
+  "version": "0.7.30",
   "description": "ObsidianToSM publishes notes to WeChat Official Account.",
   "main": "main.js",
   "scripts": {

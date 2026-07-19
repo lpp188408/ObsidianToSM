@@ -1,9 +1,17 @@
 export type PreviewMode = "mobile" | "desktop";
 
+export interface SidebarCoverCrop {
+  scale: number;
+  offsetX: number;
+  offsetY: number;
+}
+
 export interface SidebarState {
   html: string;
   plainText: string;
   coverDataUrl?: string;
+  coverSourceDataUrl?: string;
+  coverCrop?: SidebarCoverCrop;
   themeId: string;
   layoutId: string;
   previewMode: PreviewMode;
@@ -14,7 +22,7 @@ export interface SidebarControllerDependencies {
   initialThemeId?: string;
   initialLayoutId?: string;
   initialPreviewMode?: PreviewMode;
-  load(themeId: string, layoutId: string): Promise<{ html: string; plainText: string; coverDataUrl?: string }>;
+  load(themeId: string, layoutId: string): Promise<{ html: string; plainText: string; coverDataUrl?: string; coverSourceDataUrl?: string; coverCrop?: SidebarCoverCrop }>;
   persistStyle?(themeId: string, layoutId: string): Promise<void>;
   persistPreviewMode?(mode: PreviewMode): Promise<void>;
   publish?(): Promise<void>;
@@ -44,7 +52,9 @@ export class SidebarController {
       ...this.state,
       html: note.html,
       plainText: note.plainText,
-      coverDataUrl: note.coverDataUrl
+      coverDataUrl: note.coverDataUrl,
+      coverSourceDataUrl: note.coverSourceDataUrl,
+      coverCrop: note.coverCrop
     };
   }
 
