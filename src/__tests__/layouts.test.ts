@@ -36,11 +36,11 @@ describe("getLayout", () => {
     expect(styles.blockquote).toContain("background:#f3f4f6");
   });
 
-  it("现代商务引用块使用轻量左侧强调线", () => {
+  it("现代商务引用块使用浅色细边框", () => {
     const styles = getLayout("modern-business").styles(getTheme("tech-blue"));
 
-    expect(styles.blockquote).toContain("border-left:3px solid #1769aa");
-    expect(styles.blockquote).not.toContain("border:1px solid");
+    expect(styles.blockquote).toContain("border:1px solid rgba(23, 105, 170, 0.28)");
+    expect(styles.blockquote).not.toContain("border-left:3px solid");
   });
 
   it.each(LAYOUTS)("$name 的引用块使用更小、更紧凑的文字", (layout) => {

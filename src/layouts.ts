@@ -29,6 +29,14 @@ export interface WechatLayout {
   styles(theme: WechatTheme): LayoutStyles;
 }
 
+function withOpacity(hex: string, opacity: number): string {
+  const value = hex.slice(1);
+  const red = Number.parseInt(value.slice(0, 2), 16);
+  const green = Number.parseInt(value.slice(2, 4), 16);
+  const blue = Number.parseInt(value.slice(4, 6), 16);
+  return `rgba(${red}, ${green}, ${blue}, ${opacity})`;
+}
+
 function baseStyles(theme: WechatTheme): LayoutStyles {
   return {
     section: `font-family:Optima,'PingFang SC','Microsoft YaHei',serif;font-size:16px;line-height:1.75;color:${theme.body};`,
@@ -78,7 +86,7 @@ export const LAYOUTS: readonly WechatLayout[] = [
       h1: `font-size:25px;line-height:1.35;text-align:left;margin:.95em 0 .6em;padding-bottom:.4em;border-bottom:3px solid ${theme.accent};font-weight:750;color:${theme.heading};`,
       h2: `font-size:20px;line-height:1.5;margin:1.2em 0 .55em;padding:.25em .6em;border-left:5px solid ${theme.accent};background:${theme.quoteBackground};font-weight:700;color:${theme.heading};`,
       h3: `font-size:18px;margin:1.05em 0 .45em;padding-bottom:.25em;border-bottom:1px solid ${theme.accent};font-weight:700;color:${theme.heading};`,
-      blockquote: `font-size:15px;line-height:1.65;margin:.5em 0;padding:.35em .7em;border:0;border-left:3px solid ${theme.accent};background:${theme.quoteBackground};color:${theme.body};`,
+      blockquote: `font-size:15px;line-height:1.65;margin:.5em 0;padding:.35em .7em;border:1px solid ${withOpacity(theme.accent, 0.28)};background:${theme.quoteBackground};color:${theme.body};`,
       th: `padding:.3em .45em;border:1px solid ${theme.accent};background:${theme.accent};color:#ffffff;text-align:left;font-weight:700;`
     })
   },
