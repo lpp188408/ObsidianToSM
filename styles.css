@@ -345,8 +345,9 @@
 }
 
 .obsidian-to-sm-section-tab {
-  background: transparent;
-  border: 0;
+  appearance: none;
+  background: transparent !important;
+  border: 0 !important;
   border-radius: 6px;
   color: var(--text-muted);
   font-family: inherit;
@@ -355,7 +356,7 @@
   height: 34px;
   padding: 0 10px;
   position: relative;
-  box-shadow: none;
+  box-shadow: none !important;
 }
 
 .obsidian-to-sm-section-tab + .obsidian-to-sm-section-tab {
@@ -372,14 +373,18 @@
 }
 
 .obsidian-to-sm-section-tab:hover {
-  background: var(--background-modifier-hover);
+  background: var(--background-modifier-hover) !important;
   color: var(--text-normal);
 }
 
 .obsidian-to-sm-section-tab.is-active {
-  background: color-mix(in srgb, var(--interactive-accent) 13%, transparent);
+  background: color-mix(in srgb, var(--interactive-accent) 18%, transparent) !important;
   color: var(--interactive-accent);
   font-weight: 600;
+}
+
+.obsidian-to-sm-section-tab.is-active:hover {
+  background: color-mix(in srgb, var(--interactive-accent) 22%, transparent) !important;
 }
 
 .obsidian-to-sm-sticker-shell {
