@@ -1,7 +1,7 @@
 import { ItemView, Notice, setIcon, WorkspaceLeaf } from "obsidian";
 import { toPng } from "html-to-image";
 import { copyPngToClipboard } from "./clipboard";
-import { buildStickerPdfDocument, openPdfPrintDialog } from "./pdf";
+import { buildStickerPdfDocument, openPdfPrintWindow, writePdfPrintDocument } from "./pdf";
 import { LAYOUTS } from "./layouts";
 import { THEMES } from "./themes";
 import { SidebarController } from "./sidebar-controller";
@@ -26,7 +26,7 @@ export interface WorkbenchActions {
   setSelectedAccount(id: string): Promise<void>;
   addCover(file: WechatUploadFile): Promise<void>;
   copy(themeId: string, layoutId: string): Promise<void>;
-  exportPdf(themeId: string, layoutId: string): Promise<void>;
+  exportPdf(themeId: string, layoutId: string, printWindow: Window): Promise<void>;
   createDraft(themeId: string, layoutId: string): Promise<void>;
   publish(themeId: string, layoutId: string): Promise<void>;
   stickerSettings(): StickerSettings;
@@ -167,7 +167,7 @@ export class WechatWorkbenchView extends ItemView {
     const commands = toolbar.createDiv({ cls: "obsidian-to-sm-commands" });
     this.iconButton(commands, "refresh-cw", "刷新预览", () => void this.refreshWechat());
     this.iconButton(commands, "copy", "复制公众号富文本", () => void this.run(() => this.actions.copy(state.themeId, state.layoutId), true));
-    this.iconButton(commands, "file-down", "导出公众号文章 PDF", () => void this.run(() => this.actions.exportPdf(state.themeId, state.layoutId)));
+    this.iconButton(commands, "file-down", "导出公众号文章 PDF", () => this.beginPdfExport((printWindow) => this.actions.exportPdf(state.themeId, state.layoutId, printWindow)));
     this.iconButton(commands, "file-plus-2", "创建公众号草稿", () => void this.run(() => this.actions.createDraft(state.themeId, state.layoutId), true), "obsidian-to-sm-draft-button");
     this.iconButton(commands, "send", "直接发布文章", () => void this.run(() => this.actions.publish(state.themeId, state.layoutId), true), "obsidian-to-sm-publish-button");
     this.iconButton(commands, "circle-help", "显示发布条件", () => { this.showHelp = !this.showHelp; this.render(); });
@@ -195,7 +195,7 @@ export class WechatWorkbenchView extends ItemView {
     this.iconButton(actions, "download", "导出贴图到 Vault", () => void this.exportSticker(), "", "导出");
     this.iconButton(actions, "clipboard", "复制首张贴图图片", () => void this.copyStickerImage(), "", "复制图");
     this.iconButton(actions, "copy", "复制贴图文案", () => void this.copyStickerText(), "", "复制文");
-    this.iconButton(actions, "file-down", "导出贴图 PDF", () => void this.exportStickerPdf(), "", "PDF");
+    this.iconButton(actions, "file-down", "导出贴图 PDF", () => this.beginPdfExport((printWindow) => this.exportStickerPdf(printWindow)), "", "PDF");
 
     const preview = shell.createDiv({ cls: "obsidian-to-sm-sticker-preview" });
     if (!this.stickerNote) {
@@ -494,13 +494,25 @@ export class WechatWorkbenchView extends ItemView {
     });
   }
 
-  private async exportStickerPdf(): Promise<void> {
-    if (!this.stickerNote) return;
+  private async exportStickerPdf(printWindow: Window): Promise<void> {
+    if (!this.stickerNote) {
+      printWindow.close();
+      return;
+    }
     await this.run(async () => {
       const dataUrls = await this.captureStickerPages(false);
-      openPdfPrintDialog(buildStickerPdfDocument(this.stickerNote!.title, dataUrls));
+      writePdfPrintDocument(printWindow, buildStickerPdfDocument(this.stickerNote!.title, dataUrls));
       new Notice("已打开系统打印窗口，请选择“存储为 PDF”完成导出");
     });
+  }
+
+  private beginPdfExport(exportPdf: (printWindow: Window) => Promise<void>): void {
+    try {
+      const printWindow = openPdfPrintWindow();
+      void this.run(() => exportPdf(printWindow));
+    } catch (error) {
+      new Notice(error instanceof Error ? error.message : String(error));
+    }
   }
 
   private async createStickerDraft(withDescription: boolean): Promise<void> {

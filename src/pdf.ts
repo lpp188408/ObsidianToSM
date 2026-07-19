@@ -19,9 +19,13 @@ export function buildStickerPdfDocument(title: string, dataUrls: string[]): stri
   return printDocument(title, pages, ".page{break-after:page;page-break-after:always}.page:last-child{break-after:auto;page-break-after:auto}.page img{display:block;width:100%;height:auto}");
 }
 
-export function openPdfPrintDialog(documentHtml: string): void {
+export function openPdfPrintWindow(): Window {
   const printWindow = window.open("", "_blank");
   if (!printWindow) throw new Error("无法打开 PDF 导出窗口，请检查是否阻止了弹窗");
+  return printWindow;
+}
+
+export function writePdfPrintDocument(printWindow: Window, documentHtml: string): void {
   printWindow.document.open();
   printWindow.document.write(documentHtml);
   printWindow.document.close();
