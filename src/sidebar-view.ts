@@ -9,6 +9,7 @@ import type { WechatUploadFile } from "./wechat";
 import {
   applyStickerRatio,
   calculateStickerPageOffsets,
+  calculateStickerTableFirstColumnWidth,
   createDefaultStickerSettings,
   validateStickerPages,
   type StickerBlockMetric,
@@ -299,6 +300,28 @@ export class WechatWorkbenchView extends ItemView {
     article.style.width = "100%";
     article.style.fontFamily = settings.fontFamily === "默认" ? "-apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif" : settings.fontFamily;
     article.style.fontSize = `${settings.fontSize}px`;
+    this.fitStickerTableColumns(article);
+  }
+
+  private fitStickerTableColumns(article: HTMLElement): void {
+    for (const table of Array.from(article.querySelectorAll<HTMLTableElement>("table"))) {
+      if (table.clientWidth <= 0) continue;
+      const cells = Array.from(table.querySelectorAll<HTMLTableCellElement>("tr > th:first-child, tr > td:first-child"));
+      if (!cells.length) continue;
+      const contentWidth = Math.max(...cells.map((cell) => this.measureStickerTableCell(cell)));
+      const width = calculateStickerTableFirstColumnWidth(table.clientWidth, contentWidth);
+      for (const cell of cells) cell.style.width = `${Math.ceil(width)}px`;
+    }
+  }
+
+  private measureStickerTableCell(cell: HTMLTableCellElement): number {
+    const style = window.getComputedStyle(cell);
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    if (!context) return cell.scrollWidth;
+    context.font = style.font;
+    const padding = Number.parseFloat(style.paddingLeft) + Number.parseFloat(style.paddingRight);
+    return context.measureText(cell.textContent?.trim() ?? "").width + padding;
   }
 
   private renderStickerSettings(shell: HTMLElement, settings: StickerSettings): void {

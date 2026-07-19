@@ -68,6 +68,10 @@ export function applyStickerRatio(settings: StickerSettings, presetRatio: string
   return { ...settings, pageHeight: Math.round(settings.width * ratio), presetRatio };
 }
 
+export function calculateStickerTableFirstColumnWidth(tableWidth: number, contentWidth: number): number {
+  return Math.max(0, Math.min(tableWidth * 0.25, contentWidth));
+}
+
 export function calculateStickerPageOffsets(
   contentHeight: number,
   viewportHeight: number,

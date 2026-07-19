@@ -573,11 +573,6 @@
   width: 100%;
 }
 
-.obsidian-to-sm-sticker-content th:first-child,
-.obsidian-to-sm-sticker-content td:first-child {
-  width: 25%;
-}
-
 .obsidian-to-sm-sticker-content th,
 .obsidian-to-sm-sticker-content td {
   border: 1px solid rgb(15 23 42 / 14%);

@@ -3,6 +3,7 @@ import {
   DEFAULT_STICKER_SETTINGS,
   applyStickerRatio,
   buildStickerExportPaths,
+  calculateStickerTableFirstColumnWidth,
   calculateStickerPageOffsets,
   createDefaultStickerSettings,
   mergeStickerSettings,
@@ -88,6 +89,13 @@ describe("贴图分页", () => {
   it("拒绝超过安全高度的单张长图和超过 20 页的微信贴图", () => {
     expect(() => validateStickerPages([16001], false)).toThrow("多页切片");
     expect(() => validateStickerPages(Array.from({ length: 21 }, () => 1000), true)).toThrow("20");
+  });
+});
+
+describe("贴图表格", () => {
+  it("首列宽度不超过表格四分之一，并为短文本自动收缩", () => {
+    expect(calculateStickerTableFirstColumnWidth(670, 64)).toBe(64);
+    expect(calculateStickerTableFirstColumnWidth(670, 240)).toBe(167.5);
   });
 });
 
