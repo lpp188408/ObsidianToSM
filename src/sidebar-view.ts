@@ -59,7 +59,7 @@ export class WechatWorkbenchView extends ItemView {
   }
 
   getViewType(): string { return VIEW_TYPE_WECHAT_WORKBENCH; }
-  getDisplayText(): string { return "ObsidianToSM"; }
+  getDisplayText(): string { return "Ob-article To SM"; }
   getIcon(): string { return "send"; }
 
   async onOpen(): Promise<void> {

@@ -21,7 +21,7 @@ export default class ObsidianToSmPlugin extends Plugin {
   declare settings: PluginSettings;
 
   async onload(): Promise<void> {
-    const loaded = await this.loadData() as Partial<PluginSettings> | null;
+    const loaded = await this.loadAndMigrateData();
     this.settings = {
       ...DEFAULT_SETTINGS,
       ...loaded,
@@ -311,6 +311,42 @@ export default class ObsidianToSmPlugin extends Plugin {
   private coverStore(): CoverStore {
     if (!this.manifest.dir) throw new Error("找不到插件目录，无法保存本地封面");
     return new CoverStore(this.app.vault.adapter, this.manifest.dir);
+  }
+
+  private async loadAndMigrateData(): Promise<Partial<PluginSettings> | null> {
+    const current = await this.loadData() as Partial<PluginSettings> | null;
+    if (current || !this.manifest.dir) return current;
+
+    const legacyDirectory = ".obsidian/plugins/obsidian-to-sm";
+    const legacyDataPath = `${legacyDirectory}/data.json`;
+    if (!await this.app.vault.adapter.exists(legacyDataPath)) return null;
+
+    try {
+      const legacy = JSON.parse(await this.app.vault.adapter.read(legacyDataPath)) as Partial<PluginSettings>;
+      const localCovers = await this.migrateLegacyCovers(legacy.localCovers ?? {}, legacyDirectory, this.manifest.dir);
+      const migrated = { ...legacy, localCovers };
+      await this.saveData(migrated);
+      new Notice("已迁移旧版 ObsidianToSM 的账号设置和本地封面");
+      return migrated;
+    } catch (error) {
+      console.error("迁移旧版插件数据失败", error);
+      return null;
+    }
+  }
+
+  private async migrateLegacyCovers(covers: PluginSettings["localCovers"], legacyDirectory: string, currentDirectory: string): Promise<PluginSettings["localCovers"]> {
+    const migrated: PluginSettings["localCovers"] = {};
+    const currentCoverDirectory = `${currentDirectory}/covers`;
+    for (const [notePath, cover] of Object.entries(covers)) {
+      if (!cover.storagePath.startsWith(`${legacyDirectory}/`)) continue;
+      const storagePath = cover.storagePath.replace(legacyDirectory, currentDirectory);
+      if (await this.app.vault.adapter.exists(cover.storagePath)) {
+        if (!await this.app.vault.adapter.exists(currentCoverDirectory)) await this.app.vault.adapter.mkdir(currentCoverDirectory);
+        await this.app.vault.adapter.writeBinary(storagePath, await this.app.vault.adapter.readBinary(cover.storagePath));
+      }
+      migrated[notePath] = { ...cover, storagePath };
+    }
+    return migrated;
   }
 
   private async resolveAsset(path: string, sourcePath: string): Promise<{ dataUrl: string; uploadFile: WechatUploadFile }> {

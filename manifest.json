@@ -1,9 +1,9 @@
 {
-  "id": "obsidian-to-sm",
-  "name": "ObsidianToSM",
-  "version": "0.7.32",
+  "id": "ob-article-to-sm",
+  "name": "Ob-article To SM",
+  "version": "1.0.0",
   "minAppVersion": "1.5.0",
-  "description": "Publish Obsidian notes to WeChat Official Account drafts.",
+  "description": "将笔记排版并发布到微信公众号草稿箱，支持贴图导出。",
   "author": "peng_lei",
   "isDesktopOnly": true
 }
