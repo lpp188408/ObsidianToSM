@@ -6,7 +6,7 @@ import { resolveEmbeds } from "./assets";
 import { copyHtmlToClipboard } from "./clipboard";
 import { extractWechatMetadata } from "./metadata";
 import { PreviewModal, type DraftConfig } from "./preview-modal";
-import { buildArticlePdfDocument, writePdfPrintDocument } from "./pdf";
+import { buildArticlePdfDocument, printPdfDocument } from "./pdf";
 import { renderMarkdownToWechatHtml } from "./renderer";
 import { DEFAULT_SETTINGS, PluginSettings, SettingsTab } from "./settings";
 import { dataUrlToUploadFile, publishWechatArticle, publishWechatDraft, publishWechatImageDraft, type WechatUploadFile } from "./wechat";
@@ -32,7 +32,7 @@ export default class ObsidianToSmPlugin extends Plugin {
       setSelectedAccount: async (id) => { this.settings.selectedAccountId = id; await this.saveSettings(); },
       addCover: async (file) => this.chooseCover(file),
       copy: async (themeId, layoutId) => { const note = await this.prepareActiveNote(themeId, layoutId); if (note) await copyHtmlToClipboard(note.html, note.plainText); },
-      exportPdf: async (themeId, layoutId, printWindow) => this.exportActiveNotePdf(themeId, layoutId, printWindow),
+      exportPdf: async (themeId, layoutId) => this.exportActiveNotePdf(themeId, layoutId),
       createDraft: async (themeId, layoutId) => this.publishActiveNote(themeId, layoutId),
       publish: async (themeId, layoutId) => this.publishArticle(themeId, layoutId),
       stickerSettings: () => this.settings.stickerSettings,
@@ -114,13 +114,10 @@ export default class ObsidianToSmPlugin extends Plugin {
     }
   }
 
-  private async exportActiveNotePdf(themeId: string, layoutId: string, printWindow: Window): Promise<void> {
+  private async exportActiveNotePdf(themeId: string, layoutId: string): Promise<void> {
     const note = await this.prepareActiveNote(themeId, layoutId);
-    if (!note) {
-      printWindow.close();
-      return;
-    }
-    writePdfPrintDocument(printWindow, buildArticlePdfDocument(note.draftConfig.metadata.title, note.html));
+    if (!note) return;
+    printPdfDocument(buildArticlePdfDocument(note.draftConfig.metadata.title, note.html));
     new Notice("已打开系统打印窗口，请选择“存储为 PDF”完成导出");
   }
 

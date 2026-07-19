@@ -7,7 +7,7 @@ function escapeHtml(value: string): string {
 }
 
 function printDocument(title: string, content: string, styles: string): string {
-  return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>${escapeHtml(title)}</title><style>@page{margin:14mm}body{margin:0;background:#fff;color:#111;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif}${styles}</style></head><body>${content}<script>window.addEventListener('load',()=>setTimeout(()=>{window.focus();window.print()},200))</script></body></html>`;
+  return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>${escapeHtml(title)}</title><style>@page{margin:14mm}body{margin:0;background:#fff;color:#111;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif}${styles}</style></head><body>${content}<script>window.addEventListener('load',()=>setTimeout(()=>{window.focus();window.print()},200));window.addEventListener('afterprint',()=>window.frameElement?.remove())</script></body></html>`;
 }
 
 export function buildArticlePdfDocument(title: string, html: string): string {
@@ -19,14 +19,17 @@ export function buildStickerPdfDocument(title: string, dataUrls: string[]): stri
   return printDocument(title, pages, ".page{break-after:page;page-break-after:always}.page:last-child{break-after:auto;page-break-after:auto}.page img{display:block;width:100%;height:auto}");
 }
 
-export function openPdfPrintWindow(): Window {
-  const printWindow = window.open("", "_blank");
-  if (!printWindow) throw new Error("无法打开 PDF 导出窗口，请检查是否阻止了弹窗");
-  return printWindow;
-}
-
-export function writePdfPrintDocument(printWindow: Window, documentHtml: string): void {
-  printWindow.document.open();
-  printWindow.document.write(documentHtml);
-  printWindow.document.close();
+export function printPdfDocument(documentHtml: string): void {
+  const frame = document.createElement("iframe");
+  frame.setAttribute("aria-hidden", "true");
+  frame.style.cssText = "position:fixed;width:0;height:0;border:0;opacity:0;pointer-events:none;";
+  document.body.appendChild(frame);
+  const frameDocument = frame.contentDocument;
+  if (!frameDocument) {
+    frame.remove();
+    throw new Error("无法创建 PDF 打印文档");
+  }
+  frameDocument.open();
+  frameDocument.write(documentHtml);
+  frameDocument.close();
 }
