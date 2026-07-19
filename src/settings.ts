@@ -1,5 +1,6 @@
 import { App, Notice, PluginSettingTab, setIcon, Setting } from "obsidian";
 import type { WechatAccount } from "./accounts";
+import type { StoredCover } from "./cover-store";
 import type ObsidianToSmPlugin from "./main";
 
 export interface PluginSettings {
@@ -11,6 +12,7 @@ export interface PluginSettings {
   encryptedSecrets: Record<string, string>;
   themeId: string;
   thumbMediaId: string;
+  localCovers: Record<string, StoredCover>;
 }
 
 export const DEFAULT_SETTINGS: PluginSettings = {
@@ -21,7 +23,8 @@ export const DEFAULT_SETTINGS: PluginSettings = {
   selectedAccountId: "",
   encryptedSecrets: {},
   themeId: "business-green",
-  thumbMediaId: ""
+  thumbMediaId: "",
+  localCovers: {}
 };
 
 export class SettingsTab extends PluginSettingTab {
@@ -116,7 +119,7 @@ export class SettingsTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("封面 thumb_media_id")
-      .setDesc("可选。笔记 frontmatter 有“封面”时会自动上传并优先使用；仅在未设置本地封面时作为兜底。")
+      .setDesc("可选。右侧工作台选择的本地封面会自动上传并优先使用；这里只在未选择本地封面时作为兜底。")
       .addText((text) =>
         text.setValue(this.plugin.settings.thumbMediaId).onChange(async (value) => {
           this.plugin.settings.thumbMediaId = value.trim();

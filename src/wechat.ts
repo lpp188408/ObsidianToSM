@@ -151,7 +151,7 @@ export async function replaceDataUrlImages(
 export async function publishWechatDraft(input: WechatDraftPublishInput): Promise<string> {
   if (!input.appId || !input.appSecret) throw new Error("请先在插件设置中配置 AppID 和 AppSecret");
   if (!input.cover && !input.thumbMediaId) {
-    throw new Error("请在笔记 frontmatter 设置封面，或在插件设置中填写封面 thumb_media_id");
+    throw new Error("请在右侧工作台选择本地封面，或在插件设置中填写封面 thumb_media_id");
   }
 
   const client = new WechatClient(input.appId, input.appSecret, input.requester);
@@ -160,7 +160,7 @@ export async function publishWechatDraft(input: WechatDraftPublishInput): Promis
 
 export async function publishWechatArticle(input: WechatDraftPublishInput): Promise<WechatPublishResult> {
   if (!input.appId || !input.appSecret) throw new Error("请先在插件设置中配置 AppID 和 AppSecret");
-  if (!input.cover && !input.thumbMediaId) throw new Error("请在笔记 frontmatter 设置封面，或在插件设置中填写封面 thumb_media_id");
+  if (!input.cover && !input.thumbMediaId) throw new Error("请在右侧工作台选择本地封面，或在插件设置中填写封面 thumb_media_id");
   const client = new WechatClient(input.appId, input.appSecret, input.requester);
   const draftMediaId = await createDraft(client, input);
   const publishId = await client.submitPublish(draftMediaId);

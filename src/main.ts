@@ -1,5 +1,6 @@
-import { Notice, Plugin, requestUrl, SuggestModal, TFile } from "obsidian";
+import { Notice, Plugin, requestUrl } from "obsidian";
 import { parseAccountRows } from "./accounts";
+import { CoverStore } from "./cover-store";
 import { MacosKeychainStore } from "./macos-keychain";
 import { resolveEmbeds } from "./assets";
 import { copyHtmlToClipboard } from "./clipboard";
@@ -20,7 +21,7 @@ export default class ObsidianToSmPlugin extends Plugin {
     this.registerView(VIEW_TYPE_WECHAT_WORKBENCH, (leaf) => new WechatWorkbenchView(leaf, this.createSidebarController(), {
       accounts: () => this.settings.accounts, selectedAccountId: () => this.settings.selectedAccountId,
       setSelectedAccount: async (id) => { this.settings.selectedAccountId = id; await this.saveSettings(); },
-      addCover: async () => this.chooseCover(),
+      addCover: async (file) => this.chooseCover(file),
       copy: async (themeId) => { const note = await this.prepareActiveNote(themeId); if (note) await copyHtmlToClipboard(note.html, note.plainText); },
       createDraft: async (themeId) => this.publishActiveNote(themeId), publish: async (themeId) => this.publishArticle(themeId)
     }));
@@ -125,23 +126,15 @@ export default class ObsidianToSmPlugin extends Plugin {
     this.app.workspace.revealLeaf(leaf);
   }
 
-  private async chooseCover(): Promise<void> {
+  private async chooseCover(file: WechatUploadFile): Promise<void> {
     const note = this.app.workspace.getActiveFile();
     if (!note) throw new Error("没有打开的笔记");
-    new CoverSuggestModal(this.app, async (cover) => {
-      const content = await this.app.vault.read(note);
-      const line = `封面: "![[${cover.name}]]"`;
-      const updated = content.match(/^---\s*\n[\s\S]*?\n---/)
-        ? content.replace(/^(---\s*\n[\s\S]*?)(\n---)/, (frontmatter, start, end) => {
-            const next = /\n(?:封面|cover):.*(?:\n|$)/.test(frontmatter)
-              ? frontmatter.replace(/\n(?:封面|cover):.*(?=\n|$)/, `\n${line}`)
-              : `${frontmatter}\n${line}`;
-            return `${next}${end}`;
-          })
-        : `---\n${line}\n---\n\n${content}`;
-      await this.app.vault.modify(note, updated);
-      new Notice(`已设置封面：${cover.name}`);
-    }).open();
+    const accepted = new Set(["image/jpeg", "image/png", "image/gif", "image/webp"]);
+    if (!accepted.has(file.mimeType)) throw new Error("封面仅支持 JPG、PNG、GIF 或 WebP 图片");
+    const stored = await this.coverStore().save(note.path, file);
+    this.settings.localCovers[note.path] = stored;
+    await this.saveSettings();
+    new Notice(`已设置本地封面：${file.filename}`);
   }
 
   private async prepareActiveNote(themeId = "business-green"): Promise<{ html: string; plainText: string; coverDataUrl?: string; draftConfig: DraftConfig } | null> {
@@ -162,13 +155,15 @@ export default class ObsidianToSmPlugin extends Plugin {
       enableLineNumbers: this.settings.enableLineNumbers,
       themeId
     });
-    const coverAsset = metadata.cover ? await this.resolveAsset(metadata.cover, file.path) : undefined;
-    const cover = coverAsset?.uploadFile;
+    const storedCover = this.settings.localCovers[file.path];
+    const localCover = storedCover ? await this.coverStore().read(storedCover) : undefined;
+    const legacyCover = !localCover && metadata.cover ? await this.resolveAsset(metadata.cover, file.path) : undefined;
+    const cover = localCover ?? legacyCover?.uploadFile;
     const account = this.settings.accounts.find((item) => item.id === this.settings.selectedAccountId);
     return {
       html,
       plainText: body,
-      coverDataUrl: coverAsset?.dataUrl,
+      coverDataUrl: localCover ? uploadFileToDataUrl(localCover) : legacyCover?.dataUrl,
       draftConfig: {
         appId: account?.appId ?? "",
         appSecret: account ? await this.credentialStore().read(account.id) : "",
@@ -190,6 +185,11 @@ export default class ObsidianToSmPlugin extends Plugin {
     return new MacosKeychainStore();
   }
 
+  private coverStore(): CoverStore {
+    if (!this.manifest.dir) throw new Error("找不到插件目录，无法保存本地封面");
+    return new CoverStore(this.app.vault.adapter, this.manifest.dir);
+  }
+
   private async resolveAsset(path: string, sourcePath: string): Promise<{ dataUrl: string; uploadFile: WechatUploadFile }> {
     const file = this.app.metadataCache.getFirstLinkpathDest(path, sourcePath);
     if (!file) {
@@ -206,16 +206,6 @@ export default class ObsidianToSmPlugin extends Plugin {
   }
 }
 
-class CoverSuggestModal extends SuggestModal<TFile> {
-  constructor(app: ObsidianToSmPlugin["app"], private readonly onSelect: (file: TFile) => Promise<void>) { super(app); }
-  getSuggestions(query: string): TFile[] {
-    const accepted = new Set(["png", "jpg", "jpeg", "gif", "webp"]);
-    return this.app.vault.getFiles().filter((file) => accepted.has(file.extension.toLowerCase()) && file.path.toLowerCase().includes(query.toLowerCase()));
-  }
-  renderSuggestion(file: TFile, el: HTMLElement): void { el.setText(file.path); }
-  onChooseSuggestion(file: TFile): void { void this.onSelect(file); }
-}
-
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   let binary = "";
   const bytes = new Uint8Array(buffer);
@@ -223,6 +213,10 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
     binary += String.fromCharCode(byte);
   }
   return btoa(binary);
+}
+
+function uploadFileToDataUrl(file: WechatUploadFile): string {
+  return `data:${file.mimeType};base64,${arrayBufferToBase64(file.bytes)}`;
 }
 
 function mimeForExtension(extension: string): string {

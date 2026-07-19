@@ -2,6 +2,7 @@ import { ItemView, Notice, setIcon, WorkspaceLeaf } from "obsidian";
 import { THEMES } from "./themes";
 import { SidebarController } from "./sidebar-controller";
 import type { WechatAccount } from "./accounts";
+import type { WechatUploadFile } from "./wechat";
 
 export const VIEW_TYPE_WECHAT_WORKBENCH = "obsidian-to-sm-workbench";
 
@@ -9,7 +10,7 @@ export interface WorkbenchActions {
   accounts(): readonly WechatAccount[];
   selectedAccountId(): string;
   setSelectedAccount(id: string): Promise<void>;
-  addCover(): Promise<void>;
+  addCover(file: WechatUploadFile): Promise<void>;
   copy(themeId: string): Promise<void>;
   createDraft(themeId: string): Promise<void>;
   publish(themeId: string): Promise<void>;
@@ -57,7 +58,7 @@ export class WechatWorkbenchView extends ItemView {
     });
     if (state.coverDataUrl) cover.createEl("img", { attr: { src: state.coverDataUrl, alt: "文章封面" } });
     else setIcon(cover, "image-plus");
-    cover.addEventListener("click", () => void this.actions.addCover().then(() => this.refresh()));
+    cover.addEventListener("click", () => this.chooseLocalCover());
 
     const account = accountRow.createEl("select", { cls: "obsidian-to-sm-account" });
     account.createEl("option", { text: "未选择公众号（预览可用）", value: "" });
@@ -101,6 +102,22 @@ export class WechatWorkbenchView extends ItemView {
     setIcon(button, icon);
     button.addEventListener("click", handler);
     return button;
+  }
+
+  private chooseLocalCover(): void {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/jpeg,image/png,image/gif,image/webp";
+    input.addEventListener("change", () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      void this.run(async () => this.actions.addCover({
+        bytes: await file.arrayBuffer(),
+        filename: file.name,
+        mimeType: file.type
+      }));
+    }, { once: true });
+    input.click();
   }
 
   private async run(action: () => Promise<void>): Promise<void> {
