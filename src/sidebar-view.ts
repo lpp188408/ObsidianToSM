@@ -95,15 +95,8 @@ export class WechatWorkbenchView extends ItemView {
       void this.controller.setLayout(layoutSelect.value).then(() => this.render());
     });
 
-    const toolbar = topPanel.createDiv({ cls: "obsidian-to-sm-toolbar" });
-    const commands = toolbar.createDiv({ cls: "obsidian-to-sm-commands" });
-    this.iconButton(commands, "refresh-cw", "刷新预览", () => void this.refresh());
-    this.iconButton(commands, "copy", "复制公众号富文本", () => void this.run(() => this.actions.copy(state.themeId, state.layoutId)));
-    this.iconButton(commands, "file-plus-2", "创建公众号草稿", () => void this.run(() => this.actions.createDraft(state.themeId, state.layoutId)), "obsidian-to-sm-draft-button");
-    this.iconButton(commands, "send", "直接发布文章", () => void this.run(() => this.actions.publish(state.themeId, state.layoutId)), "obsidian-to-sm-publish-button");
-    this.iconButton(commands, "circle-help", "显示发布条件", () => { this.showHelp = !this.showHelp; this.render(); });
-
-    const previewModes = toolbar.createDiv({ cls: "obsidian-to-sm-preview-modes" });
+    const previewRow = settingsFields.createDiv({ cls: "obsidian-to-sm-preview-row" });
+    const previewModes = previewRow.createDiv({ cls: "obsidian-to-sm-preview-modes" });
     for (const item of [
       { id: "mobile" as const, icon: "smartphone", label: "手机预览" },
       { id: "desktop" as const, icon: "monitor", label: "PC 预览" }
@@ -117,6 +110,14 @@ export class WechatWorkbenchView extends ItemView {
         void this.controller.setPreviewMode(item.id).then(() => this.render());
       });
     }
+
+    const toolbar = topPanel.createDiv({ cls: "obsidian-to-sm-toolbar" });
+    const commands = toolbar.createDiv({ cls: "obsidian-to-sm-commands" });
+    this.iconButton(commands, "refresh-cw", "刷新预览", () => void this.refresh());
+    this.iconButton(commands, "copy", "复制公众号富文本", () => void this.run(() => this.actions.copy(state.themeId, state.layoutId)));
+    this.iconButton(commands, "file-plus-2", "创建公众号草稿", () => void this.run(() => this.actions.createDraft(state.themeId, state.layoutId)), "obsidian-to-sm-draft-button");
+    this.iconButton(commands, "send", "直接发布文章", () => void this.run(() => this.actions.publish(state.themeId, state.layoutId)), "obsidian-to-sm-publish-button");
+    this.iconButton(commands, "circle-help", "显示发布条件", () => { this.showHelp = !this.showHelp; this.render(); });
 
     if (this.showHelp) {
       root.createDiv({

@@ -87,34 +87,42 @@
   border-bottom: 1px solid var(--background-modifier-border);
   display: grid;
   column-gap: 10px;
+  row-gap: 8px;
   grid-template-areas:
     "cover fields"
-    ". toolbar";
+    "toolbar fields";
   grid-template-columns: minmax(0, 54%) minmax(0, 1fr);
   grid-template-rows: auto auto;
   padding: 8px;
 }
 
 .obsidian-to-sm-settings-fields {
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
   display: grid;
   grid-area: fields;
-  grid-template-rows: repeat(3, minmax(0, 1fr));
+  grid-row: 1 / 3;
+  grid-template-rows: repeat(4, minmax(0, 1fr));
   min-width: 0;
+  overflow: hidden;
 }
 
 .obsidian-to-sm-account-row {
   align-items: center;
+  border-bottom: 1px solid var(--background-modifier-border);
   display: grid;
   gap: 6px;
   grid-template-columns: minmax(0, 1fr) 30px;
-  padding: 0 0 6px;
+  min-height: 36px;
+  padding: 4px 8px;
 }
 
 .obsidian-to-sm-cover {
   align-items: center;
   background: transparent;
   border: 1px dashed var(--background-modifier-border);
-  border-radius: 4px;
+  border-radius: 6px;
   color: var(--text-muted);
   display: flex;
   grid-area: cover;
@@ -138,27 +146,31 @@
 }
 
 .obsidian-to-sm-account {
-  background: var(--background-secondary);
+  background: var(--background-primary);
   border-color: var(--background-modifier-border);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
   min-width: 0;
   width: 100%;
 }
 
 .obsidian-to-sm-toolbar {
   align-items: center;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
   display: flex;
-  gap: 4px;
   grid-area: toolbar;
-  justify-content: space-between;
-  min-height: 38px;
-  padding: 6px 0 0;
+  height: 38px;
+  padding: 3px 6px;
 }
 
 .obsidian-to-sm-commands {
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+  justify-content: space-between;
   min-width: 0;
+  width: 100%;
 }
 
 .obsidian-to-sm-option-row {
@@ -173,12 +185,16 @@
 
 .obsidian-to-sm-field-label {
   color: var(--text-muted);
-  font-size: 11px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .obsidian-to-sm-layout-select {
-  background: var(--background-secondary);
+  background: var(--background-primary);
+  font-family: inherit;
   font-size: 12px;
+  font-weight: 500;
   min-width: 0;
   width: 100%;
 }
@@ -239,6 +255,14 @@
 .obsidian-to-sm-preview-modes {
   display: inline-flex;
   flex: 0 0 auto;
+}
+
+.obsidian-to-sm-preview-row {
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
+  min-height: 36px;
+  padding: 4px 8px;
 }
 
 .obsidian-to-sm-preview-mode {
