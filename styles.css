@@ -530,7 +530,7 @@
 }
 
 .obsidian-to-sm-sticker-content blockquote {
-  background: rgb(255 255 255 / 52%);
+  background: #f3f4f6;
   border-left: 4px solid #6b7280;
   color: #4b5563;
   padding: 0.7em 1em;
@@ -571,6 +571,11 @@
   border-collapse: collapse;
   table-layout: fixed;
   width: 100%;
+}
+
+.obsidian-to-sm-sticker-content th:first-child,
+.obsidian-to-sm-sticker-content td:first-child {
+  width: 25%;
 }
 
 .obsidian-to-sm-sticker-content th,
