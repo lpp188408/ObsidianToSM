@@ -55,6 +55,8 @@
 }
 
 .obsidian-to-sm-workbench {
+  container-name: obsidian-to-sm-workbench;
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -81,11 +83,31 @@
   font-size: 11px;
 }
 
+.obsidian-to-sm-workspace {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: minmax(220px, 36%) minmax(0, 1fr);
+  min-height: 0;
+}
+
+.obsidian-to-sm-control-panel {
+  border-right: 1px solid var(--background-modifier-border);
+  min-width: 0;
+  padding: 8px;
+}
+
+.obsidian-to-sm-content-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
 .obsidian-to-sm-account-row {
   align-items: center;
   display: grid;
   gap: 6px;
-  grid-template-columns: minmax(150px, 235px) minmax(0, 1fr) 30px;
+  grid-template-columns: minmax(0, 1fr) 30px;
   padding: 6px 8px;
 }
 
@@ -124,28 +146,32 @@
 
 .obsidian-to-sm-toolbar {
   align-items: center;
-  border-bottom: 1px solid var(--background-modifier-border);
   display: flex;
   gap: 4px;
   min-height: 38px;
-  padding: 4px 8px;
+  padding: 6px 0 0;
 }
 
-.obsidian-to-sm-style-bar {
+.obsidian-to-sm-option-row {
   align-items: center;
   border-bottom: 1px solid var(--background-modifier-border);
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 6px;
+  grid-template-columns: 72px minmax(0, 1fr);
   min-height: 36px;
   padding: 4px 8px;
 }
 
+.obsidian-to-sm-field-label {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
 .obsidian-to-sm-layout-select {
   background: var(--background-secondary);
-  flex: 1 1 124px;
   font-size: 12px;
   min-width: 0;
+  width: 100%;
 }
 
 .obsidian-to-sm-icon-button {
@@ -185,14 +211,9 @@
 .obsidian-to-sm-themes {
   align-items: center;
   display: flex;
-  gap: 2px;
-  margin-left: auto;
+  gap: 4px;
+  justify-content: flex-end;
   min-width: 0;
-}
-
-.obsidian-to-sm-style-bar .obsidian-to-sm-themes {
-  flex: 0 0 auto;
-  margin-left: auto;
 }
 
 .obsidian-to-sm-theme-swatch {
@@ -206,6 +227,38 @@
   width: 12px;
 }
 
+.obsidian-to-sm-preview-modes {
+  display: inline-flex;
+  justify-self: end;
+}
+
+.obsidian-to-sm-preview-mode {
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-muted);
+  display: inline-flex;
+  height: 28px;
+  justify-content: center;
+  padding: 0;
+  width: 34px;
+}
+
+.obsidian-to-sm-preview-mode:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.obsidian-to-sm-preview-mode:last-child {
+  border-left: 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.obsidian-to-sm-preview-mode.is-active {
+  background: var(--interactive-accent);
+  border-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
 .obsidian-to-sm-theme-swatch.is-active {
   border-color: var(--text-normal);
   outline: 1px solid var(--background-primary);
@@ -213,10 +266,11 @@
 
 .obsidian-to-sm-help {
   background: var(--background-secondary);
-  border-bottom: 1px solid var(--background-modifier-border);
+  border-left: 2px solid var(--interactive-accent);
   color: var(--text-muted);
   font-size: 12px;
   line-height: 1.45;
+  margin-top: 6px;
   padding: 6px 8px;
 }
 
@@ -229,5 +283,28 @@
 
 .obsidian-to-sm-sidebar-preview .obsidian-to-sm {
   margin: 0 auto;
-  max-width: 680px;
+}
+
+.obsidian-to-sm-sidebar-preview.is-mobile .obsidian-to-sm {
+  max-width: 375px;
+}
+
+.obsidian-to-sm-sidebar-preview.is-desktop .obsidian-to-sm {
+  max-width: none;
+}
+
+@container obsidian-to-sm-workbench (max-width: 720px) {
+  .obsidian-to-sm-workspace {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  .obsidian-to-sm-control-panel {
+    border-bottom: 1px solid var(--background-modifier-border);
+    border-right: 0;
+  }
+
+  .obsidian-to-sm-content-panel {
+    min-height: 560px;
+  }
 }

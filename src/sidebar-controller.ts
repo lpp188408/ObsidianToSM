@@ -1,17 +1,22 @@
+export type PreviewMode = "mobile" | "desktop";
+
 export interface SidebarState {
   html: string;
   plainText: string;
   coverDataUrl?: string;
   themeId: string;
   layoutId: string;
+  previewMode: PreviewMode;
   isBusy: boolean;
 }
 
 export interface SidebarControllerDependencies {
   initialThemeId?: string;
   initialLayoutId?: string;
+  initialPreviewMode?: PreviewMode;
   load(themeId: string, layoutId: string): Promise<{ html: string; plainText: string; coverDataUrl?: string }>;
   persistStyle?(themeId: string, layoutId: string): Promise<void>;
+  persistPreviewMode?(mode: PreviewMode): Promise<void>;
   publish?(): Promise<void>;
 }
 
@@ -24,6 +29,7 @@ export class SidebarController {
       plainText: "",
       themeId: dependencies.initialThemeId ?? "business-green",
       layoutId: dependencies.initialLayoutId ?? "none",
+      previewMode: dependencies.initialPreviewMode ?? "desktop",
       isBusy: false
     };
   }
@@ -52,6 +58,11 @@ export class SidebarController {
     this.state = { ...this.state, layoutId };
     await this.dependencies.persistStyle?.(this.state.themeId, this.state.layoutId);
     await this.refresh();
+  }
+
+  async setPreviewMode(previewMode: PreviewMode): Promise<void> {
+    this.state = { ...this.state, previewMode };
+    await this.dependencies.persistPreviewMode?.(previewMode);
   }
 
   async publish(): Promise<void> {

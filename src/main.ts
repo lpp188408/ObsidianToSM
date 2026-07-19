@@ -114,9 +114,14 @@ export default class ObsidianToSmPlugin extends Plugin {
     return new SidebarController({
       initialThemeId: this.settings.themeId,
       initialLayoutId: this.settings.layoutId,
+      initialPreviewMode: this.settings.previewMode,
       persistStyle: async (themeId, layoutId) => {
         this.settings.themeId = themeId;
         this.settings.layoutId = layoutId;
+        await this.saveSettings();
+      },
+      persistPreviewMode: async (previewMode) => {
+        this.settings.previewMode = previewMode;
         await this.saveSettings();
       },
       load: async (themeId, layoutId) => {

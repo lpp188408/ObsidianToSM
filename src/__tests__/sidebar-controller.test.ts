@@ -38,6 +38,26 @@ describe("SidebarController", () => {
     expect(controller.getState().html).toContain("tech-blue/technical-blueprint");
   });
 
+  it("切换预览模式后持久化但不重新加载文章", async () => {
+    let loads = 0;
+    const saved: string[] = [];
+    const controller = new SidebarController({
+      initialPreviewMode: "desktop",
+      load: async () => {
+        loads += 1;
+        return { html: "<article>正文</article>", plainText: "正文" };
+      },
+      persistPreviewMode: async (mode) => { saved.push(mode); }
+    });
+
+    await controller.refresh();
+    await controller.setPreviewMode("mobile");
+
+    expect(controller.getState().previewMode).toBe("mobile");
+    expect(saved).toEqual(["mobile"]);
+    expect(loads).toBe(1);
+  });
+
   it("刷新无封面笔记时清空上一页的封面缩略图", async () => {
     let includeCover = true;
     const controller = new SidebarController({

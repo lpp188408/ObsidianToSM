@@ -2,6 +2,7 @@ import { App, Notice, PluginSettingTab, setIcon, Setting } from "obsidian";
 import type { WechatAccount } from "./accounts";
 import type { StoredCover } from "./cover-store";
 import type ObsidianToSmPlugin from "./main";
+import type { PreviewMode } from "./sidebar-controller";
 
 export interface PluginSettings {
   author: string;
@@ -12,6 +13,7 @@ export interface PluginSettings {
   encryptedSecrets: Record<string, string>;
   themeId: string;
   layoutId: string;
+  previewMode: PreviewMode;
   thumbMediaId: string;
   localCovers: Record<string, StoredCover>;
 }
@@ -25,6 +27,7 @@ export const DEFAULT_SETTINGS: PluginSettings = {
   encryptedSecrets: {},
   themeId: "business-green",
   layoutId: "none",
+  previewMode: "desktop",
   thumbMediaId: "",
   localCovers: {}
 };
