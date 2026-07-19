@@ -772,3 +772,19 @@ export type PreviewMode = "mobile" | "desktop";
 - [ ] **步骤 5：验证、构建、安装并提交**
 
 运行 `npm test`，预期全部测试通过。运行 `npm run build`，预期 TypeScript 和 esbuild 成功。复制 `main.js`、`manifest.json`、`styles.css` 到 `/Users/peng_lei/Documents/Obsidian Vault/.obsidian/plugins/obsidian-to-sm/`，核对哈希一致后提交 `fix: 重组左右预览工作区`。
+
+---
+
+### 任务 6：按截图调整封面与菜单位置
+
+**文件：**
+- 修改：`src/sidebar-view.ts`
+- 修改：`styles.css`
+- 修改：`README.md`
+- 重新生成：`main.js`
+
+- [ ] 顶部创建 `obsidian-to-sm-top-panel`，左侧只放封面，右侧 `obsidian-to-sm-settings-panel` 放账号、颜色、模板、预览模式和菜单。
+- [ ] 菜单使用原有五个图标按钮，放在右侧设置区底部并靠右排列。
+- [ ] 将文章预览移到顶部信息区之后，恢复全宽滚动预览。
+- [ ] 使用容器查询在 `720px` 以下把顶部信息区改为单列。
+- [ ] 运行完整测试和生产构建，覆盖安装文件，在实际 Obsidian 中检查宽屏和窄屏布局后提交。

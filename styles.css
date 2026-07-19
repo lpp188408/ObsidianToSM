@@ -83,23 +83,17 @@
   font-size: 11px;
 }
 
-.obsidian-to-sm-workspace {
+.obsidian-to-sm-top-panel {
+  border-bottom: 1px solid var(--background-modifier-border);
   display: grid;
-  flex: 1 1 auto;
-  grid-template-columns: minmax(220px, 36%) minmax(0, 1fr);
-  min-height: 0;
-}
-
-.obsidian-to-sm-control-panel {
-  border-right: 1px solid var(--background-modifier-border);
-  min-width: 0;
+  gap: 10px;
+  grid-template-columns: minmax(220px, 54%) minmax(260px, 1fr);
   padding: 8px;
 }
 
-.obsidian-to-sm-content-panel {
+.obsidian-to-sm-settings-panel {
   display: flex;
   flex-direction: column;
-  min-height: 0;
   min-width: 0;
 }
 
@@ -108,7 +102,7 @@
   display: grid;
   gap: 6px;
   grid-template-columns: minmax(0, 1fr) 30px;
-  padding: 6px 8px;
+  padding: 0 0 6px;
 }
 
 .obsidian-to-sm-cover {
@@ -148,6 +142,8 @@
   align-items: center;
   display: flex;
   gap: 4px;
+  justify-content: flex-end;
+  margin-top: auto;
   min-height: 38px;
   padding: 6px 0 0;
 }
@@ -294,17 +290,7 @@
 }
 
 @container obsidian-to-sm-workbench (max-width: 720px) {
-  .obsidian-to-sm-workspace {
+  .obsidian-to-sm-top-panel {
     grid-template-columns: 1fr;
-    overflow-y: auto;
-  }
-
-  .obsidian-to-sm-control-panel {
-    border-bottom: 1px solid var(--background-modifier-border);
-    border-right: 0;
-  }
-
-  .obsidian-to-sm-content-panel {
-    min-height: 560px;
   }
 }
