@@ -45,7 +45,7 @@ describe("getLayout", () => {
   it.each(LAYOUTS)("$name 的表格使用紧凑行距", (layout) => {
     const styles = layout.styles(getTheme("tech-blue"));
 
-    expect(styles.table).toContain("table-layout:fixed");
+    expect(styles.table).toContain("table-layout:auto");
     expect(styles.table).toContain("line-height:1.45");
     expect(styles.th).toContain("padding:.3em .45em");
     expect(styles.td).toContain("padding:.3em .45em");

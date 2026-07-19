@@ -310,6 +310,7 @@ export class WechatWorkbenchView extends ItemView {
       if (!cells.length) continue;
       const contentWidth = Math.max(...cells.map((cell) => this.measureStickerTableCell(cell)));
       const width = calculateStickerTableFirstColumnWidth(table.clientWidth, contentWidth);
+      table.style.tableLayout = "fixed";
       for (const cell of cells) cell.style.width = `${Math.ceil(width)}px`;
     }
   }

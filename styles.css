@@ -569,7 +569,7 @@
 
 .obsidian-to-sm-sticker-content table {
   border-collapse: collapse;
-  table-layout: fixed;
+  table-layout: auto;
   width: 100%;
 }
 

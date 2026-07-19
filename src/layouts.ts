@@ -48,7 +48,7 @@ function baseStyles(theme: WechatTheme): LayoutStyles {
     inlineCode: `padding:.12em .3em;background:${theme.codeBackground};color:${theme.heading};font-family:'SFMono-Regular',Consolas,monospace;font-size:.9em;`,
     pre: `margin:.8em 0;padding:10px;overflow:auto;background:${theme.codeBackground};border-radius:6px;`,
     code: `font-family:'SFMono-Regular',Consolas,'Liberation Mono',monospace;font-size:14px;color:${theme.body};`,
-    table: "width:100%;margin:.8em 0;border-collapse:collapse;table-layout:fixed;font-size:.92em;line-height:1.45;",
+    table: "width:100%;margin:.8em 0;border-collapse:collapse;table-layout:auto;font-size:.92em;line-height:1.45;",
     th: `padding:.3em .45em;border:1px solid ${theme.accent};background:${theme.quoteBackground};color:${theme.heading};text-align:left;font-weight:700;`,
     td: `padding:.3em .45em;border:1px solid ${theme.accent};color:${theme.body};vertical-align:top;`
   };
@@ -125,7 +125,7 @@ export const LAYOUTS: readonly WechatLayout[] = [
       ol: "margin:0 0 1em;padding-left:1.5em;",
       li: `margin:.12em 0;color:${theme.body};`,
       hr: "margin:1.5em 0;border:0;border-top:1px solid rgb(15 23 42 / 14%);",
-      table: "width:100%;margin:0 0 1em;border-collapse:collapse;table-layout:fixed;font-size:1em;line-height:1.45;",
+      table: "width:100%;margin:0 0 1em;border-collapse:collapse;table-layout:auto;font-size:1em;line-height:1.45;",
       th: `padding:.3em .45em;border:1px solid rgb(15 23 42 / 14%);background:rgb(255 255 255 / 48%);color:${theme.heading};text-align:left;font-weight:650;vertical-align:top;word-break:break-word;`,
       td: `padding:.3em .45em;border:1px solid rgb(15 23 42 / 14%);color:${theme.body};text-align:left;vertical-align:top;word-break:break-word;`
     })

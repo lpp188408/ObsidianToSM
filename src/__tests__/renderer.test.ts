@@ -41,14 +41,23 @@ describe("renderMarkdownToWechatHtml", () => {
     expect(html).not.toContain(">1.</span><p");
   });
 
-  it("将表格首列固定为四分之一宽度", () => {
+  it("短文本表格首列按内容单行自适应", () => {
     const html = renderMarkdownToWechatHtml("| 项目 | 内容 |\n| --- | --- |\n| 书名 | 示例 |", {
       customCss: "",
       enableLineNumbers: false
     });
 
-    expect(html).toContain("table-layout:fixed");
-    expect(html.match(/width:25%/g)).toHaveLength(2);
+    expect(html).toContain("table-layout:auto");
+    expect(html.match(/width:1%;white-space:nowrap/g)).toHaveLength(2);
+  });
+
+  it("长文本表格首列最多占四分之一并允许换行", () => {
+    const html = renderMarkdownToWechatHtml("| 第一阶段：创业与发展 | 内容 |\n| --- | --- |\n| 第二阶段：全球扩张 | 示例 |", {
+      customCss: "",
+      enableLineNumbers: false
+    });
+
+    expect(html.match(/width:25%;white-space:normal;word-break:break-word/g)).toHaveLength(2);
   });
 
   it("移除引用块内部段落的首尾边距", () => {

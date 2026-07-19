@@ -78,10 +78,24 @@ function inlineWechatStyles(html: string, styles: LayoutStyles): string {
   output = output
     .replaceAll("<a ", `<a style="${styles.a}" `)
     .replaceAll("<img ", `<img style="${styles.img}" `);
-  output = output.replace(/(<tr>\s*<(?:th|td) style="[^"]*)"/g, "$1width:25%;\"");
+  output = applyTableFirstColumnSizing(output);
   return output.replace(/(<blockquote style="[^"]*">[\s\S]*?<\/blockquote>)/g, (quote) =>
     quote.replaceAll(`style="${styles.p}"`, `style="${styles.p}margin:0;"`)
   );
+}
+
+function applyTableFirstColumnSizing(html: string): string {
+  return html.replace(/(<table style="[^"]*">[\s\S]*?<\/table>)/g, (table) => {
+    const cells = Array.from(table.matchAll(/<tr>\s*<(?:th|td) style="[^"]*">([\s\S]*?)<\/(?:th|td)>/g));
+    const longest = Math.max(0, ...cells.map((cell) => visualTextWidth(cell[1])));
+    const style = longest <= 5 ? "width:1%;white-space:nowrap;" : "width:25%;white-space:normal;word-break:break-word;";
+    return table.replace(/(<tr>\s*<(?:th|td) style="[^"]*)"/g, `$1${style}"`);
+  });
+}
+
+function visualTextWidth(html: string): number {
+  const text = html.replace(/<[^>]+>/g, "").replace(/&[^;]+;/g, " ").trim();
+  return [...text].reduce((width, character) => width + (/[\x00-\xff]/.test(character) ? 0.55 : 1), 0);
 }
 
 const codeLineStyle = "display:block;position:relative;min-height:1.5em;";
