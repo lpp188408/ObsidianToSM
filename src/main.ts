@@ -8,16 +8,23 @@ import { extractWechatMetadata } from "./metadata";
 import { PreviewModal, type DraftConfig } from "./preview-modal";
 import { renderMarkdownToWechatHtml } from "./renderer";
 import { DEFAULT_SETTINGS, PluginSettings, SettingsTab } from "./settings";
-import { publishWechatArticle, publishWechatDraft, type WechatUploadFile } from "./wechat";
+import { dataUrlToUploadFile, publishWechatArticle, publishWechatDraft, publishWechatImageDraft, type WechatUploadFile } from "./wechat";
 import { SidebarController } from "./sidebar-controller";
 import { VIEW_TYPE_WECHAT_WORKBENCH, WechatWorkbenchView } from "./sidebar-view";
 import { SuccessModal } from "./success-modal";
+import { buildStickerExportPaths, mergeStickerSettings, sanitizeStickerTitle, type StickerNote, type StickerSettings } from "./sticker";
+import { markdownToStickerPlainText, renderMarkdownToStickerHtml } from "./sticker-renderer";
 
 export default class ObsidianToSmPlugin extends Plugin {
   declare settings: PluginSettings;
 
   async onload(): Promise<void> {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    const loaded = await this.loadData() as Partial<PluginSettings> | null;
+    this.settings = {
+      ...DEFAULT_SETTINGS,
+      ...loaded,
+      stickerSettings: mergeStickerSettings(loaded?.stickerSettings)
+    };
     this.addSettingTab(new SettingsTab(this.app, this));
     this.registerView(VIEW_TYPE_WECHAT_WORKBENCH, (leaf) => new WechatWorkbenchView(leaf, this.createSidebarController(), {
       accounts: () => this.settings.accounts, selectedAccountId: () => this.settings.selectedAccountId,
@@ -25,7 +32,13 @@ export default class ObsidianToSmPlugin extends Plugin {
       addCover: async (file) => this.chooseCover(file),
       copy: async (themeId, layoutId) => { const note = await this.prepareActiveNote(themeId, layoutId); if (note) await copyHtmlToClipboard(note.html, note.plainText); },
       createDraft: async (themeId, layoutId) => this.publishActiveNote(themeId, layoutId),
-      publish: async (themeId, layoutId) => this.publishArticle(themeId, layoutId)
+      publish: async (themeId, layoutId) => this.publishArticle(themeId, layoutId),
+      stickerSettings: () => this.settings.stickerSettings,
+      saveStickerSettings: async (settings) => { this.settings.stickerSettings = settings; await this.saveSettings(); },
+      loadSticker: async () => this.prepareStickerNote(),
+      copyStickerText: async (text) => { await navigator.clipboard.writeText(text); new Notice("贴图文案已复制"); },
+      exportStickerImages: async (title, dataUrls) => this.exportStickerImages(title, dataUrls),
+      createStickerDraft: async (note, dataUrls, withDescription) => this.publishStickerDraft(note, dataUrls, withDescription)
     }));
 
     this.addRibbonIcon("send", "打开公众号发布工作台", () => { void this.activateWorkbench(); });
@@ -190,6 +203,62 @@ export default class ObsidianToSmPlugin extends Plugin {
         requester: async (request) => requestUrl(request)
       }
     };
+  }
+
+  private async prepareStickerNote(): Promise<StickerNote | null> {
+    const file = this.app.workspace.getActiveFile();
+    if (!file) {
+      new Notice("没有打开的笔记");
+      return null;
+    }
+    const markdown = await this.app.vault.read(file);
+    const { body, metadata } = extractWechatMetadata(markdown, { author: this.settings.author, title: file.basename });
+    const withImages = await resolveEmbeds(body, async (path) => (await this.resolveAsset(path, file.path)).dataUrl);
+    return {
+      title: metadata.title,
+      html: renderMarkdownToStickerHtml(withImages),
+      plainText: markdownToStickerPlainText(body),
+      needOpenComment: metadata.needOpenComment,
+      onlyFansCanComment: metadata.onlyFansCanComment
+    };
+  }
+
+  private async exportStickerImages(title: string, dataUrls: string[]): Promise<string[]> {
+    const safeDirectory = `贴图导出/${sanitizeStickerTitle(title)}`;
+    await this.ensureVaultFolder("贴图导出");
+    await this.ensureVaultFolder(safeDirectory);
+    const listing = await this.app.vault.adapter.list(safeDirectory);
+    const paths = buildStickerExportPaths(title, dataUrls.length, new Set(listing.files));
+    for (let index = 0; index < paths.length; index += 1) {
+      const file = dataUrlToUploadFile(dataUrls[index], `sticker-${index + 1}`);
+      await this.app.vault.adapter.writeBinary(paths[index], file.bytes);
+    }
+    new SuccessModal(this.app, "贴图导出成功", `已保存 ${paths.length} 张图片到 ${safeDirectory}`).open();
+    return paths;
+  }
+
+  private async publishStickerDraft(note: StickerNote, dataUrls: string[], withDescription: boolean): Promise<void> {
+    const account = this.currentAccount();
+    const images = dataUrls.map((dataUrl, index) => dataUrlToUploadFile(dataUrl, `sticker-${index + 1}`));
+    await publishWechatImageDraft({
+      appId: account.appId,
+      appSecret: await this.credentialStore().read(account.id),
+      requester: async (request) => requestUrl(request),
+      title: note.title,
+      description: withDescription ? note.plainText : "",
+      images,
+      needOpenComment: note.needOpenComment,
+      onlyFansCanComment: note.onlyFansCanComment
+    });
+    new SuccessModal(
+      this.app,
+      "贴图已加入草稿箱",
+      withDescription ? "图片和文字描述已成功加入公众号草稿箱。" : "纯图片内容已成功加入公众号草稿箱。"
+    ).open();
+  }
+
+  private async ensureVaultFolder(path: string): Promise<void> {
+    if (!await this.app.vault.adapter.exists(path)) await this.app.vault.createFolder(path);
   }
 
   private currentAccount() {

@@ -37,6 +37,17 @@ export interface WechatDraftPublishInput {
   thumbMediaId: string;
 }
 
+export interface WechatImageDraftInput {
+  appId: string;
+  appSecret: string;
+  requester: WechatRequester;
+  title: string;
+  description: string;
+  images: WechatUploadFile[];
+  needOpenComment: boolean;
+  onlyFansCanComment: boolean;
+}
+
 export type WechatPublishStatus = "published" | "reviewing" | "failed" | "rejected";
 export interface WechatPublishResult { draftMediaId: string; publishId: string; status: WechatPublishStatus; }
 export interface WechatPublishPollingOptions {
@@ -88,6 +99,28 @@ export class WechatClient {
     });
     const mediaId = response.json.media_id;
     if (typeof mediaId !== "string") throwWechatError(response.json, "创建草稿失败");
+    return mediaId;
+  }
+
+  async addImageDraft(input: Omit<WechatImageDraftInput, "appId" | "appSecret" | "requester" | "images"> & { imageMediaIds: string[] }): Promise<string> {
+    const token = await this.getAccessToken();
+    const response = await this.requester({
+      url: `https://api.weixin.qq.com/cgi-bin/draft/add?access_token=${encodeURIComponent(token)}`,
+      method: "POST",
+      contentType: "application/json",
+      body: JSON.stringify({
+        articles: [{
+          article_type: "newspic",
+          title: input.title,
+          content: input.description,
+          need_open_comment: input.needOpenComment ? 1 : 0,
+          only_fans_can_comment: input.onlyFansCanComment ? 1 : 0,
+          image_info: { image_list: input.imageMediaIds.map((imageMediaId) => ({ image_media_id: imageMediaId })) }
+        }]
+      })
+    });
+    const mediaId = response.json.media_id;
+    if (typeof mediaId !== "string") throwWechatError(response.json, "创建图片草稿失败");
     return mediaId;
   }
 
@@ -161,6 +194,24 @@ export async function publishWechatDraft(input: WechatDraftPublishInput): Promis
 
   const client = new WechatClient(input.appId, input.appSecret, input.requester);
   return createDraft(client, input);
+}
+
+export async function publishWechatImageDraft(input: WechatImageDraftInput): Promise<string> {
+  if (!input.appId || !input.appSecret) throw new Error("请先在插件设置中配置 AppID 和 AppSecret");
+  if (input.images.length === 0) throw new Error("至少需要一张贴图");
+  if (input.images.length > 20) throw new Error("公众号贴图最多支持 20 张图片");
+  if ([...input.title].length > 32) throw new Error("公众号贴图标题不能超过 32 个字");
+  if ([...input.description].length > 20000) throw new Error("公众号贴图描述不能超过 20000 个字符");
+  const client = new WechatClient(input.appId, input.appSecret, input.requester);
+  const imageMediaIds: string[] = [];
+  for (const image of input.images) imageMediaIds.push(await client.uploadCover(image));
+  return client.addImageDraft({
+    title: input.title,
+    description: input.description,
+    needOpenComment: input.needOpenComment,
+    onlyFansCanComment: input.onlyFansCanComment,
+    imageMediaIds
+  });
 }
 
 export async function publishWechatArticle(input: WechatDraftPublishInput, options: WechatPublishPollingOptions = {}): Promise<WechatPublishResult> {

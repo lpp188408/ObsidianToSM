@@ -319,9 +319,365 @@
 }
 
 .obsidian-to-sm-sidebar-preview.is-mobile .obsidian-to-sm {
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 6%);
+  box-sizing: border-box;
   max-width: 375px;
+  overflow: hidden;
 }
 
 .obsidian-to-sm-sidebar-preview.is-desktop .obsidian-to-sm {
   max-width: none;
+}
+
+.obsidian-to-sm-section-tabs {
+  border-bottom: 1px solid var(--background-modifier-border);
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  height: 36px;
+  padding: 0 8px;
+}
+
+.obsidian-to-sm-section-tab {
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  height: 36px;
+  padding: 0 12px;
+}
+
+.obsidian-to-sm-section-tab:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.obsidian-to-sm-section-tab.is-active {
+  border-bottom-color: var(--interactive-accent);
+  color: var(--text-normal);
+}
+
+.obsidian-to-sm-sticker-shell {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  position: relative;
+}
+
+.obsidian-to-sm-sticker-toolbar {
+  background: var(--background-primary);
+  border-bottom: 1px solid var(--background-modifier-border);
+  display: grid;
+  flex: 0 0 auto;
+  gap: 6px;
+  padding: 8px;
+}
+
+.obsidian-to-sm-sticker-account {
+  min-width: 0;
+}
+
+.obsidian-to-sm-sticker-actions {
+  align-items: center;
+  display: grid;
+  gap: 4px;
+  grid-template-columns: repeat(6, minmax(30px, 1fr));
+}
+
+.obsidian-to-sm-sticker-actions .obsidian-to-sm-icon-button {
+  justify-self: center;
+}
+
+.obsidian-to-sm-sticker-preview {
+  background: var(--background-secondary);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 10px;
+}
+
+.obsidian-to-sm-sticker-empty {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin: 24px 0;
+  text-align: center;
+}
+
+.obsidian-to-sm-sticker-size {
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.obsidian-to-sm-sticker-pages {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.obsidian-to-sm-sticker-page-scale {
+  flex: 0 0 auto;
+  position: relative;
+}
+
+.obsidian-to-sm-sticker-page {
+  border: 1px solid rgb(15 23 42 / 10%);
+  box-shadow: 0 3px 14px rgb(15 23 42 / 8%);
+  box-sizing: border-box;
+  color: #1f2937;
+  overflow: hidden;
+  transform-origin: left top;
+}
+
+.obsidian-to-sm-sticker-viewport {
+  overflow: hidden;
+  width: 100%;
+}
+
+.obsidian-to-sm-sticker-content {
+  box-sizing: border-box;
+  color: #1f2937;
+  letter-spacing: 0;
+  line-height: 1.75;
+  margin: 0;
+  overflow-wrap: anywhere;
+  transform-origin: left top;
+}
+
+.obsidian-to-sm-sticker-content > :first-child {
+  margin-top: 0;
+}
+
+.obsidian-to-sm-sticker-content > :last-child {
+  margin-bottom: 0;
+}
+
+.obsidian-to-sm-sticker-content h1,
+.obsidian-to-sm-sticker-content h2,
+.obsidian-to-sm-sticker-content h3,
+.obsidian-to-sm-sticker-content h4 {
+  color: #111827;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.35;
+  margin: 1.4em 0 0.65em;
+}
+
+.obsidian-to-sm-sticker-content h1 { font-size: 1.8em; }
+.obsidian-to-sm-sticker-content h2 { font-size: 1.45em; }
+.obsidian-to-sm-sticker-content h3 { font-size: 1.2em; }
+.obsidian-to-sm-sticker-content h4 { font-size: 1.05em; }
+
+.obsidian-to-sm-sticker-content p,
+.obsidian-to-sm-sticker-content ul,
+.obsidian-to-sm-sticker-content ol,
+.obsidian-to-sm-sticker-content blockquote,
+.obsidian-to-sm-sticker-content pre,
+.obsidian-to-sm-sticker-content table {
+  margin: 0 0 1em;
+}
+
+.obsidian-to-sm-sticker-content ul,
+.obsidian-to-sm-sticker-content ol {
+  padding-left: 1.5em;
+}
+
+.obsidian-to-sm-sticker-content blockquote {
+  background: rgb(255 255 255 / 52%);
+  border-left: 4px solid #6b7280;
+  color: #4b5563;
+  padding: 0.7em 1em;
+}
+
+.obsidian-to-sm-sticker-content blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.obsidian-to-sm-sticker-content img {
+  display: block;
+  height: auto;
+  margin: 1em auto;
+  max-width: 100%;
+}
+
+.obsidian-to-sm-sticker-content pre {
+  background: #111827;
+  border-radius: 6px;
+  color: #e5e7eb;
+  overflow: hidden;
+  padding: 0.9em 1em;
+  white-space: pre-wrap;
+}
+
+.obsidian-to-sm-sticker-content code {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.88em;
+}
+
+.obsidian-to-sm-sticker-content :not(pre) > code {
+  background: rgb(15 23 42 / 8%);
+  border-radius: 3px;
+  padding: 0.12em 0.32em;
+}
+
+.obsidian-to-sm-sticker-content table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.obsidian-to-sm-sticker-content th,
+.obsidian-to-sm-sticker-content td {
+  border: 1px solid rgb(15 23 42 / 14%);
+  padding: 0.5em 0.65em;
+  text-align: left;
+  vertical-align: top;
+  word-break: break-word;
+}
+
+.obsidian-to-sm-sticker-content th {
+  background: rgb(255 255 255 / 48%);
+  font-weight: 650;
+}
+
+.obsidian-to-sm-sticker-content hr {
+  border: 0;
+  border-top: 1px solid rgb(15 23 42 / 14%);
+  margin: 1.5em 0;
+}
+
+.obsidian-to-sm-sticker-measure,
+.obsidian-to-sm-sticker-export-track {
+  left: -30000px;
+  opacity: 0;
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  z-index: -1;
+}
+
+.obsidian-to-sm-sticker-backdrop {
+  background: rgb(0 0 0 / 18%);
+  inset: 0;
+  position: absolute;
+  z-index: 20;
+}
+
+.obsidian-to-sm-sticker-settings {
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  bottom: 8px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 14%);
+  max-width: calc(100% - 16px);
+  overflow: auto;
+  padding: 0 12px 16px;
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 330px;
+  z-index: 21;
+}
+
+.obsidian-to-sm-sticker-settings-header {
+  align-items: center;
+  background: var(--background-primary);
+  border-bottom: 1px solid var(--background-modifier-border);
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  min-height: 44px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.obsidian-to-sm-sticker-settings-header h3 {
+  font-size: 14px;
+  margin: 0;
+}
+
+.obsidian-to-sm-sticker-setting-group {
+  margin-bottom: 14px;
+}
+
+.obsidian-to-sm-sticker-setting-group > label {
+  color: var(--text-muted);
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.obsidian-to-sm-sticker-setting-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.obsidian-to-sm-sticker-segmented {
+  display: grid;
+  gap: 4px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.obsidian-to-sm-sticker-segmented button {
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 11px;
+  min-height: 32px;
+  padding: 4px 6px;
+}
+
+.obsidian-to-sm-sticker-segmented button.is-active {
+  background: var(--interactive-accent);
+  border-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.obsidian-to-sm-sticker-input,
+.obsidian-to-sm-sticker-select {
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 12px;
+  width: 100%;
+}
+
+.obsidian-to-sm-sticker-color {
+  height: 34px;
+  padding: 2px;
+  width: 100%;
+}
+
+.obsidian-to-sm-sticker-range {
+  display: block;
+  margin: 0;
+  width: 100%;
+}
+
+@container obsidian-to-sm-workbench (max-width: 340px) {
+  .obsidian-to-sm-sticker-toolbar {
+    padding: 6px;
+  }
+
+  .obsidian-to-sm-sticker-actions {
+    gap: 2px;
+  }
+
+  .obsidian-to-sm-sticker-preview {
+    padding: 8px 6px;
+  }
 }

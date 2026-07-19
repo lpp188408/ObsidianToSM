@@ -3,6 +3,7 @@ import type { WechatAccount } from "./accounts";
 import type { StoredCover } from "./cover-store";
 import type ObsidianToSmPlugin from "./main";
 import type { PreviewMode } from "./sidebar-controller";
+import { DEFAULT_STICKER_SETTINGS, type StickerSettings } from "./sticker";
 
 export interface PluginSettings {
   author: string;
@@ -16,6 +17,7 @@ export interface PluginSettings {
   previewMode: PreviewMode;
   thumbMediaId: string;
   localCovers: Record<string, StoredCover>;
+  stickerSettings: StickerSettings;
 }
 
 export const DEFAULT_SETTINGS: PluginSettings = {
@@ -29,7 +31,8 @@ export const DEFAULT_SETTINGS: PluginSettings = {
   layoutId: "none",
   previewMode: "desktop",
   thumbMediaId: "",
-  localCovers: {}
+  localCovers: {},
+  stickerSettings: DEFAULT_STICKER_SETTINGS
 };
 
 export class SettingsTab extends PluginSettingTab {

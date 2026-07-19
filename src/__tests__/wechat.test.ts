@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { publishWechatArticle, publishWechatDraft, replaceDataUrlImages, WechatClient, type WechatRequester } from "../wechat";
+import { publishWechatArticle, publishWechatDraft, publishWechatImageDraft, replaceDataUrlImages, WechatClient, type WechatRequester } from "../wechat";
 
 describe("replaceDataUrlImages", () => {
   it("uploads only data URL images and replaces their src values", async () => {
@@ -93,6 +93,57 @@ describe("publishWechatDraft", () => {
       content: '<p><img src="https://mmbiz.qpic.cn/inline.png" /></p>',
       thumb_media_id: "cover-media-id"
     });
+  });
+});
+
+describe("publishWechatImageDraft", () => {
+  it("上传永久图片并创建纯图片草稿", async () => {
+    const requester: WechatRequester = vi.fn()
+      .mockResolvedValueOnce({ json: { access_token: "token" } })
+      .mockResolvedValueOnce({ json: { media_id: "image-1" } })
+      .mockResolvedValueOnce({ json: { media_id: "image-2" } })
+      .mockResolvedValueOnce({ json: { media_id: "draft-id" } });
+
+    const result = await publishWechatImageDraft({
+      appId: "app-id",
+      appSecret: "app-secret",
+      requester,
+      title: "贴图标题",
+      description: "",
+      images: [
+        { bytes: new Uint8Array([1]).buffer, filename: "01.png", mimeType: "image/png" },
+        { bytes: new Uint8Array([2]).buffer, filename: "02.png", mimeType: "image/png" }
+      ],
+      needOpenComment: true,
+      onlyFansCanComment: false
+    });
+
+    expect(result).toBe("draft-id");
+    expect(JSON.parse((requester as ReturnType<typeof vi.fn>).mock.calls[3][0].body)).toEqual({
+      articles: [{
+        article_type: "newspic",
+        title: "贴图标题",
+        content: "",
+        need_open_comment: 1,
+        only_fans_can_comment: 0,
+        image_info: { image_list: [{ image_media_id: "image-1" }, { image_media_id: "image-2" }] }
+      }]
+    });
+  });
+
+  it("拒绝超过微信限制的图片数量和描述", async () => {
+    const base = {
+      appId: "app-id",
+      appSecret: "app-secret",
+      requester: vi.fn(),
+      title: "标题",
+      description: "",
+      needOpenComment: false,
+      onlyFansCanComment: false
+    };
+    const image = { bytes: new ArrayBuffer(0), filename: "page.png", mimeType: "image/png" };
+    await expect(publishWechatImageDraft({ ...base, images: Array.from({ length: 21 }, () => image) })).rejects.toThrow("20");
+    await expect(publishWechatImageDraft({ ...base, images: [image], description: "文".repeat(20001) })).rejects.toThrow("20000");
   });
 });
 
