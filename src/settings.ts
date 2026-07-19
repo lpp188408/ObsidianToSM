@@ -1,4 +1,4 @@
-import { App, Notice, PluginSettingTab, Setting } from "obsidian";
+import { App, Notice, PluginSettingTab, setIcon, Setting } from "obsidian";
 import type { WechatAccount } from "./accounts";
 import type ObsidianToSmPlugin from "./main";
 
@@ -25,6 +25,8 @@ export const DEFAULT_SETTINGS: PluginSettings = {
 };
 
 export class SettingsTab extends PluginSettingTab {
+  private showAccountHelp = false;
+
   constructor(app: App, private readonly plugin: ObsidianToSmPlugin) {
     super(app, plugin);
   }
@@ -66,13 +68,32 @@ export class SettingsTab extends PluginSettingTab {
         });
       });
 
-    containerEl.createEl("h3", { text: "公众号信息" });
-    containerEl.createEl("p", { text: "每行一个公众号：名称|AppID|AppSecret。AppSecret 使用 macOS 系统钥匙串加密保存。" });
+    const accountHeading = containerEl.createDiv({ cls: "obsidian-to-sm-settings-heading" });
+    accountHeading.createEl("h3", { text: "公众号信息" });
+    const accountHelpButton = accountHeading.createEl("button", {
+      cls: "clickable-icon obsidian-to-sm-settings-info",
+      attr: {
+        "aria-label": "查看公众号配置说明",
+        "aria-expanded": String(this.showAccountHelp)
+      }
+    });
+    setIcon(accountHelpButton, "info");
+    accountHelpButton.addEventListener("click", () => {
+      this.showAccountHelp = !this.showAccountHelp;
+      this.display();
+    });
+    if (this.showAccountHelp) {
+      const accountHelp = containerEl.createDiv({ cls: "obsidian-to-sm-settings-help" });
+      accountHelp.createEl("p", { text: "每行配置一个公众号，多个公众号请换行输入。" });
+      accountHelp.createEl("code", { text: "公众号名称|AppID|AppSecret" });
+      accountHelp.createEl("p", { text: "AppSecret 保存到 macOS 系统钥匙串；发布前还需在微信开发者平台配置 API IP 白名单。" });
+    }
     let rows = this.plugin.exportAccountRows();
     new Setting(containerEl).setName("公众号账号").addTextArea((text) => {
       text.inputEl.rows = 6;
       text.inputEl.cols = 48;
       text.inputEl.wrap = "off";
+      text.inputEl.placeholder = "公众号名称|AppID|AppSecret\n第二个公众号|AppID|AppSecret";
       text.setValue(rows);
       text.onChange((value) => { rows = value; });
     });
