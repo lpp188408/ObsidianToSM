@@ -35,12 +35,25 @@ export function renderMarkdownToWechatHtml(markdown: string, options: RenderOpti
     }
   });
 
-  const article = marked.parse(markdown) as string;
+  const article = marked.parse(normalizeObsidianCallouts(markdown)) as string;
   return `<section class="obsidian-to-sm" style="${articleStyles.section}">${inlineWechatStyles(article, articleStyles)}</section><style>${baseCss(articleStyles)}${options.customCss}</style>`;
 }
 
 const listItemStyle = "display:block;margin:.2em 0;padding-left:1.35em;text-indent:-1.35em;";
 const listMarkerStyle = "display:inline-block;width:1.35em;text-align:center;text-indent:0;";
+
+function normalizeObsidianCallouts(markdown: string): string {
+  let fenced = false;
+  return markdown.split("\n").map((line) => {
+    if (/^\s*(```|~~~)/.test(line)) {
+      fenced = !fenced;
+      return line;
+    }
+    if (fenced) return line;
+
+    return line.replace(/^>\s*\[![\w-]+\][+-]?\s*/, "> ");
+  }).join("\n");
+}
 
 function addLineNumbers(highlighted: string): string {
   const lines = highlighted.split("\n");

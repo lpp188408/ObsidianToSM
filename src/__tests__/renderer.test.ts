@@ -70,6 +70,18 @@ describe("renderMarkdownToWechatHtml", () => {
     expect(html).toContain('margin:.65em 0;color:#202124;margin:0;');
   });
 
+  it("解析 Obsidian 引用块标记并保留标题与正文", () => {
+    const html = renderMarkdownToWechatHtml("> [!quote] 书中最值得记住的一句话\n> 拿着锤子的人，看什么都像钉子。", {
+      customCss: "",
+      enableLineNumbers: false
+    });
+
+    expect(html).not.toContain("[!quote]");
+    expect(html).toContain("书中最值得记住的一句话");
+    expect(html).toContain("拿着锤子的人，看什么都像钉子。");
+    expect(html).toContain("<blockquote");
+  });
+
   const sample = `# 主标题
 
 ## 二级标题
