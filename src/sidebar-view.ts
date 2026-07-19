@@ -171,7 +171,7 @@ export class WechatWorkbenchView extends ItemView {
 
     if (this.showHelp) root.createDiv({
       cls: "obsidian-to-sm-help",
-      text: "预览不需要账号；创建草稿和直接发布需要在插件设置中配置账号、微信 API 权限、IP 白名单和封面。"
+      text: "预览不需要账号；创建草稿和直接发布需要在插件设置中配置账号、微信 API 权限、IP 白名单和封面。微信正式发布接口并非所有公众号都开放；若提示未授权，请创建草稿后到公众号后台手动发表。"
     });
 
     const preview = root.createDiv({ cls: `obsidian-to-sm-sidebar-preview is-${state.previewMode}` });

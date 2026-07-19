@@ -131,7 +131,13 @@ export default class ObsidianToSmPlugin extends Plugin {
       if (result.status === "published") new SuccessModal(this.app, "发表成功", "文章已成功发表到公众号。").open();
       else if (result.status === "reviewing") new Notice(`发布任务已提交，微信仍在处理中（${result.publishId}）`);
       else throw new Error(result.status === "rejected" ? "微信平台审核未通过" : "微信发布失败");
-    } catch (error) { throw new Error(`直接发布失败：${error instanceof Error ? error.message : String(error)}`); }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (/48001|api unauthorized/i.test(message)) {
+        throw new Error("当前公众号未开通微信正式发布接口。请使用“创建草稿”，再到公众号后台手动发表；详情见工作台帮助。");
+      }
+      throw new Error(`直接发布失败：${message}`);
+    }
   }
 
   private createSidebarController(): SidebarController {
