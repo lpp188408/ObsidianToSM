@@ -327,45 +327,43 @@
 }
 
 .obsidian-to-sm-section-tabs {
-  background: var(--background-primary);
+  background: transparent;
   border: 0;
-  border-bottom: 1px solid var(--background-modifier-border);
   border-radius: 0;
   box-shadow: none;
   display: grid;
   flex: 0 0 auto;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  height: 38px;
-  overflow: hidden;
-  padding: 0;
+  height: 42px;
+  overflow: visible;
+  padding: 4px 8px;
 }
 
 .obsidian-to-sm-section-tab {
   background: transparent;
   border: 0;
-  border-radius: 0;
+  border-radius: 6px;
   color: var(--text-muted);
   font-family: inherit;
   font-size: 14px;
   font-weight: 500;
-  height: 36px;
+  height: 34px;
   padding: 0 10px;
   position: relative;
   box-shadow: none;
 }
 
 .obsidian-to-sm-section-tab + .obsidian-to-sm-section-tab {
-  border-left: 1px solid var(--background-modifier-border);
+  border-left: 0;
 }
 
-.obsidian-to-sm-section-tab::after {
-  background: transparent;
-  bottom: 0;
+.obsidian-to-sm-section-tab + .obsidian-to-sm-section-tab::before {
+  background: var(--background-modifier-border);
   content: "";
-  height: 2px;
-  left: 22%;
+  height: 18px;
+  left: 0;
   position: absolute;
-  right: 22%;
+  top: 8px;
 }
 
 .obsidian-to-sm-section-tab:hover {
@@ -374,12 +372,9 @@
 }
 
 .obsidian-to-sm-section-tab.is-active {
+  background: color-mix(in srgb, var(--interactive-accent) 13%, transparent);
   color: var(--interactive-accent);
   font-weight: 600;
-}
-
-.obsidian-to-sm-section-tab.is-active::after {
-  background: var(--interactive-accent);
 }
 
 .obsidian-to-sm-sticker-shell {
