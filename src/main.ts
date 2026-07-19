@@ -102,7 +102,9 @@ export default class ObsidianToSmPlugin extends Plugin {
       const note = await this.prepareActiveNote(themeId);
       if (!note) return;
       const result = await publishWechatArticle({ ...note.draftConfig, html: note.html });
-      new Notice(`发布任务：${result.status}（${result.publishId}）`);
+      if (result.status === "published") new Notice("文章已直接发表");
+      else if (result.status === "reviewing") new Notice(`发布任务已提交，微信仍在处理中（${result.publishId}）`);
+      else throw new Error(result.status === "rejected" ? "微信平台审核未通过" : "微信发布失败");
     } catch (error) { throw new Error(`直接发布失败：${error instanceof Error ? error.message : String(error)}`); }
   }
 

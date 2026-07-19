@@ -18,6 +18,7 @@ export interface WorkbenchActions {
 
 export class WechatWorkbenchView extends ItemView {
   private showHelp = false;
+  private isRunning = false;
 
   constructor(leaf: WorkspaceLeaf, private readonly controller: SidebarController, private readonly actions: WorkbenchActions) {
     super(leaf);
@@ -121,7 +122,13 @@ export class WechatWorkbenchView extends ItemView {
   }
 
   private async run(action: () => Promise<void>): Promise<void> {
+    if (this.isRunning) {
+      new Notice("操作正在进行，请稍候");
+      return;
+    }
+    this.isRunning = true;
     try { await action(); await this.refresh(); }
     catch (error) { new Notice(error instanceof Error ? error.message : String(error)); }
+    finally { this.isRunning = false; }
   }
 }

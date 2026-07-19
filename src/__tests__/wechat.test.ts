@@ -115,4 +115,26 @@ describe("publishWechatArticle", () => {
     expect((requester as ReturnType<typeof vi.fn>).mock.calls[3][0].url).toContain("freepublish/submit");
     expect((requester as ReturnType<typeof vi.fn>).mock.calls[4][0].url).toContain("freepublish/get");
   });
+
+  it("发布处理中持续查询，直到微信返回成功", async () => {
+    const requester: WechatRequester = vi.fn()
+      .mockResolvedValueOnce({ json: { access_token: "token" } })
+      .mockResolvedValueOnce({ json: { media_id: "cover-media-id" } })
+      .mockResolvedValueOnce({ json: { media_id: "draft-media-id" } })
+      .mockResolvedValueOnce({ json: { publish_id: "publish-id" } })
+      .mockResolvedValueOnce({ json: { publish_status: 1 } })
+      .mockResolvedValueOnce({ json: { publish_status: 1 } })
+      .mockResolvedValueOnce({ json: { publish_status: 0 } });
+    const wait = vi.fn().mockResolvedValue(undefined);
+
+    const result = await publishWechatArticle({
+      appId: "app-id", appSecret: "app-secret", requester, html: "<p>正文</p>", thumbMediaId: "",
+      metadata: { title: "标题", author: "作者", digest: "", cover: "cover.png", needOpenComment: true, onlyFansCanComment: false },
+      cover: { bytes: new TextEncoder().encode("cover").buffer, filename: "cover.png", mimeType: "image/png" }
+    }, { wait, pollIntervalMs: 1, maxPollAttempts: 3 });
+
+    expect(result.status).toBe("published");
+    expect(wait).toHaveBeenCalledTimes(2);
+    expect((requester as ReturnType<typeof vi.fn>).mock.calls.filter(([request]) => request.url.includes("freepublish/get"))).toHaveLength(3);
+  });
 });

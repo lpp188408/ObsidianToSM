@@ -39,6 +39,11 @@ export interface WechatDraftPublishInput {
 
 export type WechatPublishStatus = "published" | "reviewing" | "failed" | "rejected";
 export interface WechatPublishResult { draftMediaId: string; publishId: string; status: WechatPublishStatus; }
+export interface WechatPublishPollingOptions {
+  maxPollAttempts?: number;
+  pollIntervalMs?: number;
+  wait?: (milliseconds: number) => Promise<void>;
+}
 
 export class WechatClient {
   private accessToken?: string;
@@ -158,13 +163,21 @@ export async function publishWechatDraft(input: WechatDraftPublishInput): Promis
   return createDraft(client, input);
 }
 
-export async function publishWechatArticle(input: WechatDraftPublishInput): Promise<WechatPublishResult> {
+export async function publishWechatArticle(input: WechatDraftPublishInput, options: WechatPublishPollingOptions = {}): Promise<WechatPublishResult> {
   if (!input.appId || !input.appSecret) throw new Error("请先在插件设置中配置 AppID 和 AppSecret");
   if (!input.cover && !input.thumbMediaId) throw new Error("请在右侧工作台选择本地封面，或在插件设置中填写封面 thumb_media_id");
   const client = new WechatClient(input.appId, input.appSecret, input.requester);
   const draftMediaId = await createDraft(client, input);
   const publishId = await client.submitPublish(draftMediaId);
-  return { draftMediaId, publishId, status: await client.getPublishStatus(publishId) };
+  const maxPollAttempts = options.maxPollAttempts ?? 10;
+  const pollIntervalMs = options.pollIntervalMs ?? 1500;
+  const wait = options.wait ?? delay;
+  let status = await client.getPublishStatus(publishId);
+  for (let attempt = 1; status === "reviewing" && attempt < maxPollAttempts; attempt += 1) {
+    await wait(pollIntervalMs);
+    status = await client.getPublishStatus(publishId);
+  }
+  return { draftMediaId, publishId, status };
 }
 
 async function createDraft(client: WechatClient, input: WechatDraftPublishInput): Promise<string> {
@@ -183,10 +196,14 @@ async function createDraft(client: WechatClient, input: WechatDraftPublishInput)
 
 function mapPublishStatus(value: unknown, response: Record<string, unknown>): WechatPublishStatus {
   if (value === 0) return "published";
-  if (value === 1) return "failed";
-  if (value === 2) return "reviewing";
-  if (value === 3) return "rejected";
+  if (value === 1) return "reviewing";
+  if (value === 2 || value === 3 || value === 5 || value === 6) return "failed";
+  if (value === 4) return "rejected";
   throwWechatError(response, "查询发布状态失败");
+}
+
+function delay(milliseconds: number): Promise<void> {
+  return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
 }
 
 export function dataUrlToUploadFile(dataUrl: string, baseName: string): WechatUploadFile {
