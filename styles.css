@@ -322,12 +322,14 @@
 
 .obsidian-to-sm-section-tabs {
   background: var(--background-primary);
-  border: 0;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
   box-shadow: none;
   display: grid;
   flex: 0 0 auto;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  height: 34px;
+  height: 38px;
+  overflow: hidden;
   padding: 0;
 }
 
@@ -339,10 +341,14 @@
   font-family: inherit;
   font-size: 14px;
   font-weight: 500;
-  height: 34px;
+  height: 36px;
   padding: 0 10px;
   position: relative;
   box-shadow: none;
+}
+
+.obsidian-to-sm-section-tab + .obsidian-to-sm-section-tab {
+  border-left: 1px solid var(--background-modifier-border);
 }
 
 .obsidian-to-sm-section-tab::after {
