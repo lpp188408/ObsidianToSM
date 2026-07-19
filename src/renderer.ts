@@ -11,8 +11,8 @@ export interface RenderOptions {
 }
 
 export function renderMarkdownToWechatHtml(markdown: string, options: RenderOptions): string {
-  const theme = getTheme(options.themeId ?? "business-green");
-  const layout = getLayout(options.layoutId ?? "none");
+  const theme = getTheme(options.themeId ?? "tech-blue");
+  const layout = getLayout(options.layoutId ?? "modern-business");
   const articleStyles = layout.styles(theme);
   const marked = new Marked({ async: false, gfm: true });
 

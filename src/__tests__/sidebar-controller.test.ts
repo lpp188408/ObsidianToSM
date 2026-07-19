@@ -2,6 +2,14 @@ import { describe, expect, it } from "vitest";
 import { SidebarController } from "../sidebar-controller";
 
 describe("SidebarController", () => {
+  it("默认使用科技蓝和现代商务模板", () => {
+    const controller = new SidebarController({
+      load: async () => ({ html: "<article>正文</article>", plainText: "正文" })
+    });
+
+    expect(controller.getState()).toMatchObject({ themeId: "tech-blue", layoutId: "modern-business" });
+  });
+
   it("切换主题后重新渲染当前笔记", async () => {
     const controller = new SidebarController({
       load: async (themeId) => ({ html: `<article>${themeId}</article>`, plainText: "正文" })

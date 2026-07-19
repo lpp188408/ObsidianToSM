@@ -27,8 +27,8 @@ export class SidebarController {
     this.state = {
       html: "",
       plainText: "",
-      themeId: dependencies.initialThemeId ?? "business-green",
-      layoutId: dependencies.initialLayoutId ?? "none",
+      themeId: dependencies.initialThemeId ?? "tech-blue",
+      layoutId: dependencies.initialLayoutId ?? "modern-business",
       previewMode: dependencies.initialPreviewMode ?? "desktop",
       isBusy: false
     };

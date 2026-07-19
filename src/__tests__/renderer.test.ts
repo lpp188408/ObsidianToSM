@@ -67,7 +67,7 @@ describe("renderMarkdownToWechatHtml", () => {
     });
 
     expect(html).toContain('<blockquote style=');
-    expect(html).toContain('margin:.65em 0;color:#202124;margin:0;');
+    expect(html).toMatch(/<p style="[^"]*margin:0;">引用内容<\/p>/);
   });
 
   it("解析 Obsidian 引用块标记并保留标题与正文", () => {
