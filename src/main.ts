@@ -1,7 +1,6 @@
 import { Notice, Plugin, requestUrl, SuggestModal, TFile } from "obsidian";
-import { safeStorage } from "electron";
 import { parseAccountRows } from "./accounts";
-import { CredentialStore } from "./credential-store";
+import { MacosKeychainStore } from "./macos-keychain";
 import { resolveEmbeds } from "./assets";
 import { copyHtmlToClipboard } from "./clipboard";
 import { extractWechatMetadata } from "./metadata";
@@ -56,7 +55,7 @@ export default class ObsidianToSmPlugin extends Plugin {
     const parsed = parseAccountRows(rows);
     const store = this.credentialStore();
     for (const [id, secret] of parsed.secrets) {
-      if (secret === "已保存") store.read(id);
+      if (secret === "已保存") await store.read(id);
       else await store.save(id, secret);
     }
     this.settings.accounts = parsed.accounts;
@@ -67,7 +66,7 @@ export default class ObsidianToSmPlugin extends Plugin {
 
   async testAccounts(): Promise<void> {
     for (const account of this.settings.accounts) {
-      const secret = this.credentialStore().read(account.id);
+      const secret = await this.credentialStore().read(account.id);
       const response = await requestUrl({ url: `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${encodeURIComponent(account.appId)}&secret=${encodeURIComponent(secret)}` });
       if (typeof response.json?.access_token !== "string") throw new Error(`${account.name} 测试失败：${response.json?.errmsg ?? "获取 access_token 失败"}`);
     }
@@ -172,7 +171,7 @@ export default class ObsidianToSmPlugin extends Plugin {
       coverDataUrl: coverAsset?.dataUrl,
       draftConfig: {
         appId: account?.appId ?? "",
-        appSecret: account ? this.credentialStore().read(account.id) : "",
+        appSecret: account ? await this.credentialStore().read(account.id) : "",
         thumbMediaId: this.settings.thumbMediaId,
         metadata,
         cover,
@@ -187,15 +186,8 @@ export default class ObsidianToSmPlugin extends Plugin {
     return account;
   }
 
-  private credentialStore(): CredentialStore {
-    return new CredentialStore({
-      isAvailable: () => safeStorage.isEncryptionAvailable(),
-      encrypt: (value) => safeStorage.encryptString(value).toString("base64"),
-      decrypt: (value) => safeStorage.decryptString(Buffer.from(value, "base64"))
-    }, () => this.settings.encryptedSecrets, async (encryptedSecrets) => {
-      this.settings.encryptedSecrets = encryptedSecrets;
-      await this.saveSettings();
-    });
+  private credentialStore(): MacosKeychainStore {
+    return new MacosKeychainStore();
   }
 
   private async resolveAsset(path: string, sourcePath: string): Promise<{ dataUrl: string; uploadFile: WechatUploadFile }> {
