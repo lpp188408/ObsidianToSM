@@ -333,6 +333,7 @@
 .obsidian-to-sm-section-tabs {
   background: transparent;
   border: 0;
+  border-bottom: 1px solid var(--background-modifier-border);
   border-radius: 0;
   box-shadow: none;
   display: grid;
