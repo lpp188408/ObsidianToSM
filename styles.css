@@ -321,41 +321,52 @@
 }
 
 .obsidian-to-sm-section-tabs {
-  background: color-mix(in srgb, var(--background-modifier-border) 46%, var(--background-primary));
+  background: var(--background-primary);
   border: 0;
-  border-radius: 12px;
   box-shadow: none;
   display: grid;
   flex: 0 0 auto;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  height: 42px;
-  padding: 4px;
-  width: 100%;
+  height: 34px;
+  padding: 0;
 }
 
 .obsidian-to-sm-section-tab {
   background: transparent;
   border: 0;
-  border-radius: 8px;
+  border-radius: 0;
   color: var(--text-muted);
   font-family: inherit;
   font-size: 14px;
   font-weight: 500;
   height: 34px;
   padding: 0 10px;
+  position: relative;
   box-shadow: none;
 }
 
+.obsidian-to-sm-section-tab::after {
+  background: transparent;
+  bottom: 0;
+  content: "";
+  height: 2px;
+  left: 22%;
+  position: absolute;
+  right: 22%;
+}
+
 .obsidian-to-sm-section-tab:hover {
-  background: color-mix(in srgb, var(--background-primary) 62%, transparent);
+  background: var(--background-modifier-hover);
   color: var(--text-normal);
 }
 
 .obsidian-to-sm-section-tab.is-active {
-  background: var(--background-primary);
-  color: var(--text-normal);
+  color: var(--interactive-accent);
   font-weight: 600;
-  box-shadow: 0 1px 2px rgb(15 23 42 / 12%), 0 1px 1px rgb(15 23 42 / 6%);
+}
+
+.obsidian-to-sm-section-tab.is-active::after {
+  background: var(--interactive-accent);
 }
 
 .obsidian-to-sm-sticker-shell {
