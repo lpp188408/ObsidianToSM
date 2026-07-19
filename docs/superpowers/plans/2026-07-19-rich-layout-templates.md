@@ -686,3 +686,89 @@ git commit -m "docs: 发布 0.4.0 排版模板版本"
 - [ ] **步骤 5：最终验收记录**
 
 记录并向用户报告：测试用例数量、构建结果、安装目录、三个安装文件哈希一致，以及需要在 Obsidian 中重新加载插件后查看模板下拉框。
+
+---
+
+### 任务 5：评审调整后的左右预览工作区
+
+**文件：**
+- 修改：`src/settings.ts`
+- 修改：`src/sidebar-controller.ts`
+- 修改：`src/__tests__/sidebar-controller.test.ts`
+- 修改：`src/sidebar-view.ts`
+- 修改：`src/main.ts`
+- 修改：`styles.css`
+- 修改：`README.md`
+- 重新生成：`main.js`
+
+**接口：**
+- 产出：`PreviewMode = "mobile" | "desktop"`、`SidebarState.previewMode`、`SidebarController.setPreviewMode(mode)`。
+
+- [ ] **步骤 1：增加预览模式持久化失败测试**
+
+```ts
+it("切换预览模式后持久化但不重新加载文章", async () => {
+  let loads = 0;
+  const saved: string[] = [];
+  const controller = new SidebarController({
+    initialPreviewMode: "desktop",
+    load: async () => { loads += 1; return { html: "<article>正文</article>", plainText: "正文" }; },
+    persistPreviewMode: async (mode) => { saved.push(mode); }
+  });
+  await controller.refresh();
+  await controller.setPreviewMode("mobile");
+  expect(controller.getState().previewMode).toBe("mobile");
+  expect(saved).toEqual(["mobile"]);
+  expect(loads).toBe(1);
+});
+```
+
+- [ ] **步骤 2：实现预览模式状态与设置**
+
+```ts
+export type PreviewMode = "mobile" | "desktop";
+```
+
+`SidebarControllerDependencies` 新增 `initialPreviewMode?: PreviewMode` 和 `persistPreviewMode?(mode: PreviewMode): Promise<void>`；状态默认 `desktop`。`setPreviewMode()` 只更新与持久化模式，不重新生成文章 HTML。
+
+`PluginSettings` 新增 `previewMode: PreviewMode`，默认值为 `desktop`。`main.ts` 将设置值和持久化回调传入控制器。
+
+- [ ] **步骤 3：重组右侧工作台 DOM**
+
+在标题栏下创建 `obsidian-to-sm-workspace`。左侧 `obsidian-to-sm-control-panel` 包含封面、原有五个图标按钮及可选帮助；右侧 `obsidian-to-sm-content-panel` 依次包含账号行、颜色行、模板行、预览模式分段按钮和可滚动预览。
+
+预览模式按钮使用 Obsidian 的 `smartphone` 与 `monitor` 图标，当前项增加 `is-active`。预览容器类名为 `obsidian-to-sm-sidebar-preview is-mobile` 或 `is-desktop`。
+
+- [ ] **步骤 4：实现宽屏左右布局和窄屏回退**
+
+```css
+.obsidian-to-sm-workspace {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: minmax(220px, 36%) minmax(0, 1fr);
+  min-height: 0;
+}
+
+.obsidian-to-sm-content-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.obsidian-to-sm-sidebar-preview.is-mobile .obsidian-to-sm {
+  max-width: 375px;
+}
+
+.obsidian-to-sm-sidebar-preview.is-desktop .obsidian-to-sm {
+  max-width: none;
+}
+
+@media (max-width: 720px) {
+  .obsidian-to-sm-workspace { grid-template-columns: 1fr; overflow-y: auto; }
+  .obsidian-to-sm-content-panel { min-height: 560px; }
+}
+```
+
+- [ ] **步骤 5：验证、构建、安装并提交**
+
+运行 `npm test`，预期全部测试通过。运行 `npm run build`，预期 TypeScript 和 esbuild 成功。复制 `main.js`、`manifest.json`、`styles.css` 到 `/Users/peng_lei/Documents/Obsidian Vault/.obsidian/plugins/obsidian-to-sm/`，核对哈希一致后提交 `fix: 重组左右预览工作区`。
