@@ -23,8 +23,9 @@ export default class ObsidianToSmPlugin extends Plugin {
       accounts: () => this.settings.accounts, selectedAccountId: () => this.settings.selectedAccountId,
       setSelectedAccount: async (id) => { this.settings.selectedAccountId = id; await this.saveSettings(); },
       addCover: async (file) => this.chooseCover(file),
-      copy: async (themeId) => { const note = await this.prepareActiveNote(themeId); if (note) await copyHtmlToClipboard(note.html, note.plainText); },
-      createDraft: async (themeId) => this.publishActiveNote(themeId), publish: async (themeId) => this.publishArticle(themeId)
+      copy: async (themeId, layoutId) => { const note = await this.prepareActiveNote(themeId, layoutId); if (note) await copyHtmlToClipboard(note.html, note.plainText); },
+      createDraft: async (themeId, layoutId) => this.publishActiveNote(themeId, layoutId),
+      publish: async (themeId, layoutId) => this.publishArticle(themeId, layoutId)
     }));
 
     this.addRibbonIcon("send", "打开公众号发布工作台", () => { void this.activateWorkbench(); });
@@ -85,9 +86,9 @@ export default class ObsidianToSmPlugin extends Plugin {
     }
   }
 
-  private async publishActiveNote(themeId = "business-green"): Promise<void> {
+  private async publishActiveNote(themeId = this.settings.themeId, layoutId = this.settings.layoutId): Promise<void> {
     try {
-      const note = await this.prepareActiveNote(themeId);
+      const note = await this.prepareActiveNote(themeId, layoutId);
       if (!note) return;
       new Notice("正在上传正文图片并创建草稿…");
       await publishWechatDraft({ ...note.draftConfig, html: note.html });
@@ -98,9 +99,9 @@ export default class ObsidianToSmPlugin extends Plugin {
     }
   }
 
-  private async publishArticle(themeId = "business-green"): Promise<void> {
+  private async publishArticle(themeId = this.settings.themeId, layoutId = this.settings.layoutId): Promise<void> {
     try {
-      const note = await this.prepareActiveNote(themeId);
+      const note = await this.prepareActiveNote(themeId, layoutId);
       if (!note) return;
       const result = await publishWechatArticle({ ...note.draftConfig, html: note.html });
       if (result.status === "published") new SuccessModal(this.app, "发表成功", "文章已成功发表到公众号。").open();
@@ -111,8 +112,15 @@ export default class ObsidianToSmPlugin extends Plugin {
 
   private createSidebarController(): SidebarController {
     return new SidebarController({
-      load: async (themeId) => {
-        const note = await this.prepareActiveNote(themeId);
+      initialThemeId: this.settings.themeId,
+      initialLayoutId: this.settings.layoutId,
+      persistStyle: async (themeId, layoutId) => {
+        this.settings.themeId = themeId;
+        this.settings.layoutId = layoutId;
+        await this.saveSettings();
+      },
+      load: async (themeId, layoutId) => {
+        const note = await this.prepareActiveNote(themeId, layoutId);
         if (!note) return { html: "", plainText: "" };
         return { html: note.html, plainText: note.plainText, coverDataUrl: note.coverDataUrl };
       }
@@ -140,7 +148,7 @@ export default class ObsidianToSmPlugin extends Plugin {
     new Notice(`已设置本地封面：${file.filename}`);
   }
 
-  private async prepareActiveNote(themeId = "business-green"): Promise<{ html: string; plainText: string; coverDataUrl?: string; draftConfig: DraftConfig } | null> {
+  private async prepareActiveNote(themeId = this.settings.themeId, layoutId = this.settings.layoutId): Promise<{ html: string; plainText: string; coverDataUrl?: string; draftConfig: DraftConfig } | null> {
     const file = this.app.workspace.getActiveFile();
     if (!file) {
       new Notice("没有打开的笔记");
@@ -156,7 +164,8 @@ export default class ObsidianToSmPlugin extends Plugin {
     const html = renderMarkdownToWechatHtml(withImages, {
       customCss: this.settings.customCss,
       enableLineNumbers: this.settings.enableLineNumbers,
-      themeId
+      themeId,
+      layoutId
     });
     const storedCover = this.settings.localCovers[file.path];
     const localCover = storedCover ? await this.coverStore().read(storedCover) : undefined;

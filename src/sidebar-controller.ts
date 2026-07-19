@@ -3,25 +3,37 @@ export interface SidebarState {
   plainText: string;
   coverDataUrl?: string;
   themeId: string;
+  layoutId: string;
   isBusy: boolean;
 }
 
 export interface SidebarControllerDependencies {
-  load(themeId: string): Promise<{ html: string; plainText: string; coverDataUrl?: string }>;
+  initialThemeId?: string;
+  initialLayoutId?: string;
+  load(themeId: string, layoutId: string): Promise<{ html: string; plainText: string; coverDataUrl?: string }>;
+  persistStyle?(themeId: string, layoutId: string): Promise<void>;
   publish?(): Promise<void>;
 }
 
 export class SidebarController {
-  private state: SidebarState = { html: "", plainText: "", themeId: "business-green", isBusy: false };
+  private state: SidebarState;
 
-  constructor(private readonly dependencies: SidebarControllerDependencies) {}
+  constructor(private readonly dependencies: SidebarControllerDependencies) {
+    this.state = {
+      html: "",
+      plainText: "",
+      themeId: dependencies.initialThemeId ?? "business-green",
+      layoutId: dependencies.initialLayoutId ?? "none",
+      isBusy: false
+    };
+  }
 
   getState(): Readonly<SidebarState> {
     return this.state;
   }
 
   async refresh(): Promise<void> {
-    const note = await this.dependencies.load(this.state.themeId);
+    const note = await this.dependencies.load(this.state.themeId, this.state.layoutId);
     this.state = {
       ...this.state,
       html: note.html,
@@ -32,6 +44,13 @@ export class SidebarController {
 
   async setTheme(themeId: string): Promise<void> {
     this.state = { ...this.state, themeId };
+    await this.dependencies.persistStyle?.(this.state.themeId, this.state.layoutId);
+    await this.refresh();
+  }
+
+  async setLayout(layoutId: string): Promise<void> {
+    this.state = { ...this.state, layoutId };
+    await this.dependencies.persistStyle?.(this.state.themeId, this.state.layoutId);
     await this.refresh();
   }
 

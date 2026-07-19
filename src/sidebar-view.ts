@@ -1,4 +1,5 @@
 import { ItemView, Notice, setIcon, WorkspaceLeaf } from "obsidian";
+import { LAYOUTS } from "./layouts";
 import { THEMES } from "./themes";
 import { SidebarController } from "./sidebar-controller";
 import type { WechatAccount } from "./accounts";
@@ -11,9 +12,9 @@ export interface WorkbenchActions {
   selectedAccountId(): string;
   setSelectedAccount(id: string): Promise<void>;
   addCover(file: WechatUploadFile): Promise<void>;
-  copy(themeId: string): Promise<void>;
-  createDraft(themeId: string): Promise<void>;
-  publish(themeId: string): Promise<void>;
+  copy(themeId: string, layoutId: string): Promise<void>;
+  createDraft(themeId: string, layoutId: string): Promise<void>;
+  publish(themeId: string, layoutId: string): Promise<void>;
 }
 
 export class WechatWorkbenchView extends ItemView {
@@ -70,20 +71,31 @@ export class WechatWorkbenchView extends ItemView {
 
     const toolbar = root.createDiv({ cls: "obsidian-to-sm-toolbar" });
     this.iconButton(toolbar, "refresh-cw", "刷新预览", () => void this.refresh());
-    this.iconButton(toolbar, "copy", "复制公众号富文本", () => void this.run(() => this.actions.copy(state.themeId)));
-    this.iconButton(toolbar, "file-plus-2", "创建公众号草稿", () => void this.run(() => this.actions.createDraft(state.themeId)), "obsidian-to-sm-draft-button");
-    this.iconButton(toolbar, "send", "直接发布文章", () => void this.run(() => this.actions.publish(state.themeId)), "obsidian-to-sm-publish-button");
+    this.iconButton(toolbar, "copy", "复制公众号富文本", () => void this.run(() => this.actions.copy(state.themeId, state.layoutId)));
+    this.iconButton(toolbar, "file-plus-2", "创建公众号草稿", () => void this.run(() => this.actions.createDraft(state.themeId, state.layoutId)), "obsidian-to-sm-draft-button");
+    this.iconButton(toolbar, "send", "直接发布文章", () => void this.run(() => this.actions.publish(state.themeId, state.layoutId)), "obsidian-to-sm-publish-button");
+    this.iconButton(toolbar, "circle-help", "显示发布条件", () => { this.showHelp = !this.showHelp; this.render(); });
 
-    const themes = toolbar.createDiv({ cls: "obsidian-to-sm-themes", attr: { "aria-label": "选择文章主题" } });
+    const styleBar = root.createDiv({ cls: "obsidian-to-sm-style-bar" });
+    const layoutSelect = styleBar.createEl("select", {
+      cls: "obsidian-to-sm-layout-select",
+      attr: { "aria-label": "选择排版模板" }
+    });
+    for (const item of LAYOUTS) layoutSelect.createEl("option", { text: item.name, value: item.id });
+    layoutSelect.value = state.layoutId;
+    layoutSelect.addEventListener("change", () => {
+      void this.controller.setLayout(layoutSelect.value).then(() => this.render());
+    });
+
+    const themes = styleBar.createDiv({ cls: "obsidian-to-sm-themes", attr: { "aria-label": "选择颜色主题" } });
     for (const item of THEMES) {
       const theme = themes.createEl("button", {
         cls: `obsidian-to-sm-theme-swatch${item.id === state.themeId ? " is-active" : ""}`,
-        attr: { "aria-label": `主题：${item.name}`, "data-tooltip-position": "bottom" }
+        attr: { "aria-label": `颜色：${item.name}`, "data-tooltip-position": "bottom" }
       });
       theme.style.backgroundColor = item.accent;
       theme.addEventListener("click", () => void this.controller.setTheme(item.id).then(() => this.render()));
     }
-    this.iconButton(toolbar, "circle-help", "显示发布条件", () => { this.showHelp = !this.showHelp; this.render(); });
 
     if (this.showHelp) {
       root.createDiv({

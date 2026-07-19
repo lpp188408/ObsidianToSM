@@ -11,6 +11,7 @@ export interface PluginSettings {
   selectedAccountId: string;
   encryptedSecrets: Record<string, string>;
   themeId: string;
+  layoutId: string;
   thumbMediaId: string;
   localCovers: Record<string, StoredCover>;
 }
@@ -23,6 +24,7 @@ export const DEFAULT_SETTINGS: PluginSettings = {
   selectedAccountId: "",
   encryptedSecrets: {},
   themeId: "business-green",
+  layoutId: "none",
   thumbMediaId: "",
   localCovers: {}
 };

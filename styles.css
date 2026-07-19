@@ -131,6 +131,23 @@
   padding: 4px 8px;
 }
 
+.obsidian-to-sm-style-bar {
+  align-items: center;
+  border-bottom: 1px solid var(--background-modifier-border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 36px;
+  padding: 4px 8px;
+}
+
+.obsidian-to-sm-layout-select {
+  background: var(--background-secondary);
+  flex: 1 1 124px;
+  font-size: 12px;
+  min-width: 0;
+}
+
 .obsidian-to-sm-icon-button {
   align-items: center;
   background: transparent;
@@ -171,6 +188,11 @@
   gap: 2px;
   margin-left: auto;
   min-width: 0;
+}
+
+.obsidian-to-sm-style-bar .obsidian-to-sm-themes {
+  flex: 0 0 auto;
+  margin-left: auto;
 }
 
 .obsidian-to-sm-theme-swatch {
