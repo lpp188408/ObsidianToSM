@@ -18,6 +18,14 @@ export function renderMarkdownToWechatHtml(markdown: string, options: RenderOpti
 
   marked.use({
     renderer: {
+      list(token: Tokens.List): string {
+        const firstNumber = typeof token.start === "number" ? token.start : 1;
+        return token.items.map((item, index) => {
+          const marker = token.ordered ? `${firstNumber + index}.` : "•";
+          const content = this.parser.parse(item.tokens, item.loose);
+          return `<section class="obsidian-to-sm-list-item" style="${listItemStyle}"><span style="${listMarkerStyle}">${marker}</span>${content}</section>`;
+        }).join("");
+      },
       code(token: Tokens.Code): string {
         const language = token.lang && hljs.getLanguage(token.lang) ? token.lang : "plaintext";
         const highlighted = hljs.highlight(token.text, { language }).value;
@@ -30,6 +38,9 @@ export function renderMarkdownToWechatHtml(markdown: string, options: RenderOpti
   const article = marked.parse(markdown) as string;
   return `<section class="obsidian-to-sm" style="${articleStyles.section}">${inlineWechatStyles(article, articleStyles)}</section><style>${baseCss(articleStyles)}${options.customCss}</style>`;
 }
+
+const listItemStyle = "display:block;margin:.2em 0;padding-left:1.35em;text-indent:-1.35em;";
+const listMarkerStyle = "display:inline-block;width:1.35em;text-align:center;text-indent:0;";
 
 function addLineNumbers(highlighted: string): string {
   const lines = highlighted.split("\n");

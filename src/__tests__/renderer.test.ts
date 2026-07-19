@@ -17,6 +17,19 @@ describe("renderMarkdownToWechatHtml", () => {
     expect(html).not.toContain(".code-line::before");
   });
 
+  it("将列表输出为兼容微信公众号的项目段落", () => {
+    const html = renderMarkdownToWechatHtml("- 第一项\n- 第二项\n\n1. 第一条\n2. 第二条", {
+      customCss: "",
+      enableLineNumbers: false
+    });
+
+    expect(html).toContain('class="obsidian-to-sm-list-item"');
+    expect(html).toContain(">•</span>第一项");
+    expect(html).toContain(">1.</span>第一条");
+    expect(html).not.toContain("<ul");
+    expect(html).not.toContain("<ol");
+  });
+
   const sample = `# 主标题
 
 ## 二级标题
@@ -50,8 +63,7 @@ const x = 1;
     });
 
     expect(html).toContain(marker);
-    expect(html).toContain("<ul style=");
-    expect(html).toContain("<li style=");
+    expect(html).toContain('class="obsidian-to-sm-list-item"');
     expect(html).toContain("<table style=");
     expect(html).toContain("<th style=");
     expect(html).toContain("<td style=");
