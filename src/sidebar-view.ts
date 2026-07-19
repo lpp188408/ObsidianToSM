@@ -272,10 +272,10 @@ export class WechatWorkbenchView extends ItemView {
     const actions = toolbar.createDiv({ cls: "obsidian-to-sm-sticker-actions" });
     this.iconButton(actions, "images", "创建纯图片公众号草稿", () => void this.createStickerDraft(false), "", "纯图稿");
     this.iconButton(actions, "file-text", "创建图片加描述公众号草稿", () => void this.createStickerDraft(true), "", "图文稿");
-    this.iconButton(actions, "download", "导出贴图到 Vault", () => void this.exportSticker(), "", "导出");
     this.iconButton(actions, "clipboard", "复制首张贴图图片", () => void this.copyStickerImage(), "", "复制图");
     this.iconButton(actions, "copy", "复制贴图文案", () => void this.copyStickerText(), "", "复制文");
-    this.iconButton(actions, "file-down", "导出贴图 PDF", () => void this.exportStickerPdf(), "", "PDF");
+    this.iconButton(actions, "download", "导出贴图图片到 Vault", () => void this.exportSticker(), "", "导图片");
+    this.iconButton(actions, "file-down", "导出贴图 PDF", () => void this.exportStickerPdf(), "", "导PDF");
 
     const preview = shell.createDiv({ cls: "obsidian-to-sm-sticker-preview" });
     if (!this.stickerNote) {
